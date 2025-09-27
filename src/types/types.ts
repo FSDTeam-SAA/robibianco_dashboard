@@ -48,3 +48,9 @@ export interface DashboardStats {
     spins: number
   }>
 }
+
+export interface UserQuery {
+  filter?: string;
+  page?: number;
+  limit?: number;
+}
