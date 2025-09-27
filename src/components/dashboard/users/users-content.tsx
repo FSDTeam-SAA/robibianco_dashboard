@@ -19,8 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAllUsers, useUserById } from "@/lib/hooks/useAllUsers";
-// import { useUserById } from "@/lib/hooks/useUserById";
-import { User } from "@/types/types";
+import { User, Reward, UserApiResponse, UsersApiResponse } from "@/types/types";
 import {
   Dialog,
   DialogContent,
@@ -32,38 +31,54 @@ export function UsersContent() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const [filter, setFilter] = useState("all");
-
-  // Modal state
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
 
-  // Fetch all users
+  // Paginated users
   const { data, isLoading, error } = useAllUsers({
     filter,
     page,
     limit: pageSize,
   });
 
-  // Fetch selected user details
-  const {
-    data: userDetail,
-    isLoading: detailLoading,
-    error: detailError,
-  } = useUserById(selectedUserId!);
+  // Single user
+  const { data: singleUser, isLoading: loadingSingle } = useUserById(
+    selectedUserId as string
+  );
 
-  console.log(userDetail)
+  const users: User[] = (data as UsersApiResponse)?.users || [];
+  const totalPages = (data as UsersApiResponse)?.totalPages || 1;
+
+  // CSV Export function
+  const handleExportCSV = () => {
+    if (!users || users.length === 0) return;
+
+    const headers = ["Name", "Email", "Rating", "Total Spins", "Total Rewards"];
+
+    const rows = users.map((user) => [
+      user.fullName,
+      user.email,
+      user.rating || 0,
+      user.totalSpins || 0,
+      user.totalRewards || 0,
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "users.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   if (isLoading) return <p>Loading users...</p>;
   if (error) return <p>Error loading users.</p>;
-
-  const users: User[] = data?.users || [];
-  const totalPages = data?.totalPages || 1;
-
-  // Handle "View Details"
-  const handleViewDetails = (id: string) => {
-    setSelectedUserId(id);
-    setOpen(true);
-  };
 
   return (
     <div className="space-y-6">
@@ -90,10 +105,11 @@ export function UsersContent() {
           </Select>
           <Button
             variant="outline"
-            className="flex items-center space-x-2 bg-transparent"
+            className="flex items-center space-x-2 bg-transparent cursor-pointer"
+            onClick={handleExportCSV}
           >
             <Download className="h-4 w-4" />
-            <span>Export</span>
+            <span>Export as .csv</span>
           </Button>
         </div>
       </div>
@@ -139,7 +155,7 @@ export function UsersContent() {
                     size="sm"
                     variant="outline"
                     className="border-[#6366F1] cursor-pointer"
-                    onClick={() => handleViewDetails(user._id)}
+                    onClick={() => setSelectedUserId(user._id)}
                   >
                     View Details
                   </Button>
@@ -185,28 +201,114 @@ export function UsersContent() {
         </div>
       </div>
 
-      {/* User Detail Modal */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+      {/* User Details Modal */}
+      <Dialog
+        open={!!selectedUserId}
+        onOpenChange={() => setSelectedUserId(null)}
+      >
+        <DialogContent className="max-w-5xl h-[80vh] p-6 rounded-2xl shadow-lg">
           <DialogHeader>
-            <DialogTitle>User Details</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-[#6366F1]">
+              User Details
+            </DialogTitle>
           </DialogHeader>
-          {detailLoading ? (
-            <p>Loading...</p>
-          ) : detailError ? (
-            <p>Error loading user details</p>
-          ) : userDetail ? (
-            <div className="space-y-2 text-left">
-              <p><strong>Name:</strong> {userDetail.fullName}</p>
-              <p><strong>Email:</strong> {userDetail.email}</p>
-              <p><strong>Phone:</strong> {userDetail.phone}</p>
-              <p><strong>Role:</strong> {userDetail.role}</p>
-              <p><strong>Status:</strong> {userDetail.status}</p>
-              <p><strong>Total Spins:</strong> {userDetail.totalSpins}</p>
-              <p><strong>Total Rewards:</strong> {userDetail.totalRewards}</p>
+
+          {loadingSingle ? (
+            <p className="text-center text-gray-500">Loading user details...</p>
+          ) : (singleUser as UserApiResponse)?.data ? (
+            <div className="space-y-8 overflow-y-auto pr-2 h-full">
+              {/* Basic Info */}
+              <div className="border rounded-xl p-6 bg-gray-50 shadow-sm">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                  Basic Information
+                </h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <p>
+                    <strong>Name:</strong>{" "}
+                    {(singleUser as UserApiResponse).data.user.fullName}
+                  </p>
+                  <p>
+                    <strong>Email:</strong>{" "}
+                    {(singleUser as UserApiResponse).data.user.email}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong>{" "}
+                    {(singleUser as UserApiResponse).data.user.phone}
+                  </p>
+                  <p>
+                    <strong>Status:</strong>
+                    <span
+                      className={`ml-2 px-2 py-1 rounded text-white text-xs ${
+                        (singleUser as UserApiResponse).data.user.status ===
+                        "active"
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                      }`}
+                    >
+                      {(singleUser as UserApiResponse).data.user.status}
+                    </span>
+                  </p>
+                  <p>
+                    <strong>Role:</strong>{" "}
+                    {(singleUser as UserApiResponse).data.user.role}
+                  </p>
+                </div>
+              </div>
+
+              {/* Rewards */}
+              <div className="border rounded-xl p-6 bg-gray-50 shadow-sm">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                  Rewards
+                </h3>
+                {(singleUser as UserApiResponse).data.rewards.length > 0 ? (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {(singleUser as UserApiResponse).data.rewards.map(
+                      (reward: Reward) => (
+                        <div
+                          key={reward._id}
+                          className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-semibold text-[#6366F1]">
+                              {reward.spinResult?.rewardName || "Reward"}
+                            </span>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                reward.rewardClaimedStatus === "pending"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : reward.rewardClaimedStatus === "claimed"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-gray-100 text-gray-600"
+                              }`}
+                            >
+                              {reward.rewardClaimedStatus}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 mb-2">
+                            <strong>Prize Code:</strong> {reward.prizeCode}
+                          </p>
+                          <p className="text-sm text-gray-500 mb-2">
+                            <strong>Rating:</strong>{" "}
+                            {reward.rating ? `${reward.rating} ⭐` : "N/A"}
+                          </p>
+                          <p className="text-sm text-gray-600 italic">
+                            {reward.comment || "No comment provided"}
+                          </p>
+                        </div>
+                      )
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 italic">
+                    No rewards found for this user.
+                  </p>
+                )}
+              </div>
             </div>
           ) : (
-            <p>No details found</p>
+            <p className="text-center text-gray-500">
+              No user details available.
+            </p>
           )}
         </DialogContent>
       </Dialog>
