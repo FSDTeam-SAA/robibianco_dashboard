@@ -18,115 +18,52 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { useAllUsers } from "@/lib/hooks/useAllUsers";
-
-// Dummy Data
-const users = [
-  {
-    id: 1,
-    name: "Esther Howard",
-    email: "Howard@gmail.com",
-    reward: 5,
-    spins: 3,
-    rewards: 2,
-    lastActive: "25/6/2025",
-  },
-  {
-    id: 2,
-    name: "Esther Howard",
-    email: "Howard@gmail.com",
-    reward: 4,
-    spins: 3,
-    rewards: 2,
-    lastActive: "25/6/2025",
-  },
-  {
-    id: 3,
-    name: "Esther Howard",
-    email: "Howard@gmail.com",
-    reward: 3,
-    spins: 3,
-    rewards: 2,
-    lastActive: "24/6/2025",
-  },
-  {
-    id: 4,
-    name: "Devon Lane",
-    email: "Devon@gmail.com",
-    reward: 5,
-    spins: 3,
-    rewards: 2,
-    lastActive: "23/6/2025",
-  },
-  {
-    id: 5,
-    name: "Bessie Cooper",
-    email: "Bessie@gmail.com",
-    reward: 4,
-    spins: 3,
-    rewards: 2,
-    lastActive: "24/6/2025",
-  },
-  {
-    id: 6,
-    name: "Floyd Miles",
-    email: "Floyd@gmail.com",
-    reward: 5,
-    spins: 3,
-    rewards: 2,
-    lastActive: "23/6/2025",
-  },
-  {
-    id: 7,
-    name: "Floyd Miles",
-    email: "Steward@gmail.com",
-    reward: 3,
-    spins: 3,
-    rewards: 2,
-    lastActive: "23/6/2025",
-  },
-  {
-    id: 8,
-    name: "Floyd Miles",
-    email: "McKinney@gmail.com",
-    reward: 2,
-    spins: 3,
-    rewards: 2,
-    lastActive: "23/6/2025",
-  },
-  {
-    id: 9,
-    name: "Darrell Steward",
-    email: "McKinney@gmail.com",
-    reward: 4,
-    spins: 3,
-    rewards: 2,
-    lastActive: "23/6/2025",
-  },
-  {
-    id: 10,
-    name: "Marvin McKinney",
-    email: "McKinney@gmail.com",
-    reward: 1,
-    spins: 3,
-    rewards: 2,
-    lastActive: "23/6/2025",
-  },
-];
+import { useAllUsers, useUserById } from "@/lib/hooks/useAllUsers";
+// import { useUserById } from "@/lib/hooks/useUserById";
+import { User } from "@/types/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function UsersContent() {
   const [page, setPage] = useState(1);
-  const pageSize = 5;
-  const totalPages = Math.ceil(users.length / pageSize);
+  const pageSize = 10;
   const [filter, setFilter] = useState("all");
 
-  // const { data, isLoading, error } = useAllUsers({ filter: 'recent', page: 1, limit: 10 });
+  // Modal state
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
-  // console.log(data)
+  // Fetch all users
+  const { data, isLoading, error } = useAllUsers({
+    filter,
+    page,
+    limit: pageSize,
+  });
 
+  // Fetch selected user details
+  const {
+    data: userDetail,
+    isLoading: detailLoading,
+    error: detailError,
+  } = useUserById(selectedUserId!);
 
-  const startIndex = (page - 1) * pageSize;
-  const currentUsers = users.slice(startIndex, startIndex + pageSize);
+  console.log(userDetail)
+
+  if (isLoading) return <p>Loading users...</p>;
+  if (error) return <p>Error loading users.</p>;
+
+  const users: User[] = data?.users || [];
+  const totalPages = data?.totalPages || 1;
+
+  // Handle "View Details"
+  const handleViewDetails = (id: string) => {
+    setSelectedUserId(id);
+    setOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -134,10 +71,14 @@ export function UsersContent() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">User Management</h1>
         <div className="flex items-center space-x-3">
-          {/* Filter Dropdown */}
-          <Select value={filter} onValueChange={setFilter}>
+          <Select
+            value={filter}
+            onValueChange={(val) => {
+              setFilter(val);
+              setPage(1);
+            }}
+          >
             <SelectTrigger className="w-[180px] border border-[#6366F1]">
-              {/* এখানে placeholder এর বদলে default value show করবে */}
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -159,33 +100,30 @@ export function UsersContent() {
 
       {/* Table */}
       <div className="text-center rounded-md overflow-hidden">
-        <Table className=" border-separate border-spacing-y-2 ">
-          {" "}
-          {/* row gap যোগ করা হলো */}
+        <Table className="border-separate border-spacing-y-2">
           <TableHeader>
             <TableRow className="font-medium">
               <TableHead className="border text-center">User Name</TableHead>
               <TableHead className="border text-center">User Email</TableHead>
-              <TableHead className="border text-center">Reward</TableHead>
+              <TableHead className="border text-center">Ratings</TableHead>
               <TableHead className="border text-center">Spins Time</TableHead>
-              <TableHead className="border text-center">Last Active</TableHead>
               <TableHead className="text-center border">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentUsers.map((user) => (
+            {users.map((user) => (
               <TableRow
-                key={user.id}
+                key={user._id}
                 className="hover:bg-gray-50 border rounded-lg"
               >
-                <TableCell className="border">{user.name}</TableCell>
+                <TableCell className="border">{user.fullName}</TableCell>
                 <TableCell className="border">{user.email}</TableCell>
                 <TableCell className="flex space-x-1 justify-center border">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
                       className={`h-10 w-5 ${
-                        i < user.reward
+                        i < (user.rating || 0)
                           ? "text-orange-400 fill-orange-400"
                           : "text-gray-300"
                       }`}
@@ -193,17 +131,15 @@ export function UsersContent() {
                   ))}
                 </TableCell>
                 <TableCell className="border">
-                  {user.spins} Tried <br />
-                  <span className="">
-                    {user.rewards} rewards
-                  </span>
+                  {user.totalSpins || 0} Tried <br />
+                  <span>{user.totalRewards || 0} rewards</span>
                 </TableCell>
-                <TableCell className="border">{user.lastActive}</TableCell>
-                <TableCell className="text-center border ">
+                <TableCell className="text-center border">
                   <Button
                     size="sm"
                     variant="outline"
                     className="border-[#6366F1] cursor-pointer"
+                    onClick={() => handleViewDetails(user._id)}
                   >
                     View Details
                   </Button>
@@ -217,17 +153,14 @@ export function UsersContent() {
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
         <p className="text-sm text-muted-foreground">
-          Showing {startIndex + 1} to{" "}
-          {Math.min(startIndex + pageSize, users.length)} of {users.length}{" "}
-          results
+          Showing page {data?.page} of {totalPages} ({data?.totalUsers} users)
         </p>
-        <div className="flex items-center space-x-2 ">
+        <div className="flex items-center space-x-2">
           <Button
             size="sm"
             variant="outline"
             disabled={page === 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="bg-[#6366F1]"
           >
             {"<"}
           </Button>
@@ -246,12 +179,37 @@ export function UsersContent() {
             variant="outline"
             disabled={page === totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className="bg-[#6366F1]"
           >
             {">"}
           </Button>
         </div>
       </div>
+
+      {/* User Detail Modal */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>User Details</DialogTitle>
+          </DialogHeader>
+          {detailLoading ? (
+            <p>Loading...</p>
+          ) : detailError ? (
+            <p>Error loading user details</p>
+          ) : userDetail ? (
+            <div className="space-y-2 text-left">
+              <p><strong>Name:</strong> {userDetail.fullName}</p>
+              <p><strong>Email:</strong> {userDetail.email}</p>
+              <p><strong>Phone:</strong> {userDetail.phone}</p>
+              <p><strong>Role:</strong> {userDetail.role}</p>
+              <p><strong>Status:</strong> {userDetail.status}</p>
+              <p><strong>Total Spins:</strong> {userDetail.totalSpins}</p>
+              <p><strong>Total Rewards:</strong> {userDetail.totalRewards}</p>
+            </div>
+          ) : (
+            <p>No details found</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

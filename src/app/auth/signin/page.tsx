@@ -16,17 +16,21 @@ import { signIn } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
-// 1️⃣ Define form schema
 const loginSchema = z.object({
-  email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function SignInPage() {
-  // 2️⃣ Setup React Hook Form
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -35,48 +39,101 @@ export default function SignInPage() {
     },
   });
 
+  // Fix: Wait for component to mount before using router
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const router = useRouter();
+
   const onSubmit = async (values: LoginFormValues) => {
-    const res = await signIn("credentials", {
-      redirect: true,
-      email: values.email,
-      password: values.password,
-      callbackUrl: "/",
-    });
-    console.log(res);
+    if (!isMounted) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    console.log("🚀 Login attempt with:", values.email);
+
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+        callbackUrl: "/",
+      });
+
+      console.log("📨 SignIn response:", result);
+
+      if (result?.error) {
+        let errorMessage = "Login failed. Please check your credentials.";
+        
+        if (result.error === "CredentialsSignin") {
+          errorMessage = "Invalid email or password.";
+        } else if (result.error.includes("401") || result.error.includes("Unauthorized")) {
+          errorMessage = "Invalid email or password.";
+        } else if (result.error.includes("Network") || result.error.includes("fetch")) {
+          errorMessage = "Network error. Please check your connection.";
+        }
+        
+        setError(errorMessage);
+        console.error("❌ Login error:", result.error);
+      } else if (result?.ok) {
+        console.log("✅ Login successful, redirecting to home");
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("❌ Unexpected error during login:", error);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+ 
+
+  if (!isMounted) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen  px-4">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 ">
       <div className="w-full max-w-md bg-white rounded-2xl  p-8">
-        {/* Header */}
         <div className="text-start mb-8">
-          <h1 className="text-2xl font-bold text-[#000000] mb-2 leading-[120%] ">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Login To Your Account
           </h1>
-          <p className="text-[#B0B0B0] text-[16px] font-normal leading-[120%]">
+          <p className="text-gray-600 text-sm">
             Please enter your email and password to continue
           </p>
         </div>
 
-        {/* Login Form */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-6"
           >
-            {/* Email Field */}
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[16px] font-normal text-[#000000] leading-[120%]">
-                    Email Address
-                  </FormLabel>
+                  <FormLabel className="text-gray-700">Email Address</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#48A256] h-4 w-4" />
-                      <Input placeholder="Email" {...field} className="pl-10" />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600 h-4 w-4" />
+                      <Input 
+                        placeholder="Enter your email" 
+                        {...field} 
+                        className="pl-10"
+                        disabled={isLoading}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -84,30 +141,28 @@ export default function SignInPage() {
               )}
             />
 
-            {/* Password Field */}
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Password
-                  </FormLabel>
+                  <FormLabel className="text-gray-700">Password</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#48A256] h-4 w-4" />
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600 h-4 w-4" />
                       <Input
                         type="password"
-                        placeholder="Password"
+                        placeholder="Enter your password"
                         {...field}
                         className="pl-10"
+                        disabled={isLoading}
                       />
                     </div>
                   </FormControl>
-                  <div className="flex justify-end items-center">
+                  <div className="flex justify-end items-center mt-2">
                     <Link
-                      href="/forgot-password"
-                      className="text-sm  text-[#48A256] hover:text-[#48A256] hover:underline font-normal cursor-pointer leading-[120%]"
+                      href="/auth/forgot-password"
+                      className="text-sm text-green-600 hover:underline"
                     >
                       Forgot Password?
                     </Link>
@@ -117,15 +172,23 @@ export default function SignInPage() {
               )}
             />
 
-            {/* Login Button */}
             <Button
               type="submit"
-              className="w-full mt-2 bg-[#48A256] hover:bg-[#4f975a] text-white cursor-pointer font-medium py-2.5"
+              disabled={isLoading}
+              className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white py-2.5 transition-colors"
             >
-              Login
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Logging in...
+                </>
+              ) : (
+                "Login"
+              )}
             </Button>
           </form>
         </Form>
+
       </div>
     </div>
   );
