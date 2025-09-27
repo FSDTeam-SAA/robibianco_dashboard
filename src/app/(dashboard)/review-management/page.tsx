@@ -1,8 +1,11 @@
+import { ReviewsContent } from '@/components/dashboard/reviews/reviews-content'
 import React from 'react'
 
 const page = () => {
   return (
-    <div>page</div>
+   <div>
+      <ReviewsContent />
+    </div>
   )
 }
 
