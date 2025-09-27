@@ -26,14 +26,16 @@ export interface Review {
 }
 
 export interface User {
-  id: string
-  name: string
-  email: string
-  contactNumber: string
-  totalSpins: number
-  totalRewards: number
-  joinDate: string
-  status: "active" | "inactive"
+  _id: string;
+  email: string;
+  fullName: string;
+  phone?: string;
+  gender?: string;
+  totalRewards?: number;
+  totalSpins?: number;
+  role?: string;
+  status?: string;
+  rating?: number ; 
 }
 
 export interface DashboardStats {
@@ -48,3 +50,11 @@ export interface DashboardStats {
     spins: number
   }>
 }
+
+export interface UserQuery {
+  filter?: string;
+  page?: number;
+  limit?: number;
+}
+
+
