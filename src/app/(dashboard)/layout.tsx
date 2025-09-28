@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+
 import "../globals.css";
 
 import Sidebar from "@/components/dashboard/sidebar/Sidebar";
-import Header from "@/components/dashboard/header/Header";
+import { Header } from "@/components/dashboard/header/Header";
+
 
 export default function RootLayout({
   children,
@@ -10,16 +11,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex relative min-h-screen">
-      <div className="w-[300px] fixed">
-        <Sidebar />
-      </div>
-      <div className=" ml-[300px]">
-        <div className="h-[104px]">
-
+   <div className="flex h-screen bg-background">
+      <Sidebar />
+      <div className="flex flex-1 flex-col overflow-hidden">
         <Header />
-        </div>
-        {children}
+        <main className="flex-1 overflow-auto p-6">{children}</main>
       </div>
     </div>
   );
