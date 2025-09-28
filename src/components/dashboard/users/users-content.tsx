@@ -130,7 +130,7 @@ export function UsersContent() {
           </Select>
           <Button
             variant="outline"
-            className="flex items-center space-x-2 bg-transparent cursor-pointer"
+            className="flex items-center text-white cursor-pointer bg-[#6366F1] hover:bg-[#6366F1] hover:text-white "
             onClick={handleExportCSV}
           >
             <Download className="h-4 w-4" />
@@ -179,7 +179,7 @@ export function UsersContent() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-[#6366F1] cursor-pointer border-2 text-[#3C3C3C]"
+                    className="border-[#6366F1] cursor-pointer border-1 text-[#3C3C3C]"
                     onClick={() => setSelectedUserId(user._id)}
                   >
                     View Details
