@@ -14,8 +14,7 @@ import { ReviewDistributionChart } from "./review-distribution-chart";
 import { TopRewardsTable } from "./top-rewards-table";
 import {
   useReviewDistribution,
-  useSpinsOverTime,
-} from "@/lib/hooks/useDashboard";
+  useSpinsOverTime,} from "@/lib/hooks/useDashboard";
 
 interface SpinOverTimeItem {
   label: string;
@@ -35,6 +34,7 @@ export function DashboardContent() {
   const { data: reviewData, isLoading: reviewLoading } = useReviewDistribution({
     filter,
   });
+
 
   // Transform API data for Spins chart
   const chartData =
@@ -82,7 +82,7 @@ export function DashboardContent() {
                   }
                 }}
               >
-                <SelectTrigger className="w-24">
+                <SelectTrigger className="w-24 text-[#1F2937]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -113,30 +113,6 @@ export function DashboardContent() {
 
       {/* Top Rewards Claimed Table */}
       <div className="bg-card rounded-lg border p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold">Top Rewards Claimed</h2>
-          <Select
-            value={filter}
-            onValueChange={(value: string) => {
-              if (
-                value === "daily" ||
-                value === "weekly" ||
-                value === "monthly"
-              ) {
-                setFilter(value);
-              }
-            }}
-          >
-            <SelectTrigger className="w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
         <TopRewardsTable />
       </div>
     </div>

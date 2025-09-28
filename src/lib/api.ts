@@ -120,3 +120,28 @@ export async function geTreviewDistribution(
     throw new Error("Failed to fetch review distribution");
   }
 }
+
+// admin analytics top-rewards-claimed
+// admin analytics top-rewards-claimed
+export async function getTopRewardsClaimed(
+  { filter, page, limit }: { filter?: string; page?: number; limit?: number },
+  token: string
+) {
+  try {
+    const res = await apiBase.get(`/admin/analytics/top-rewards-claimed`, {
+      params: { filter, page, limit },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.data && res.data.data) {
+      return res.data;  
+    } else {
+      throw new Error("No data returned from top-rewards-claimed API");
+    }
+  } catch (err) {
+    console.error("Error fetching top-rewards-claimed", err);
+    throw new Error("Failed to fetch top-rewards-claimed data");
+  }
+}

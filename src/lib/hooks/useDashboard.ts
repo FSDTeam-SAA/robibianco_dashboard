@@ -1,7 +1,11 @@
 // useDashboard.ts
 import { useQuery } from "@tanstack/react-query";
 import { getSession } from "next-auth/react";
-import { geTreviewDistribution, getSpinsOverTime } from "../api";
+import {
+  geTreviewDistribution,
+  getSpinsOverTime,
+  getTopRewardsClaimed,
+} from "../api";
 
 // API function params
 interface SpinsQuery {
@@ -45,5 +49,26 @@ export const useReviewDistribution = (queryParams: ReviewDistributionQuery) => {
       // Call API and pass token
       return geTreviewDistribution(queryParams, token);
     },
+  });
+};
+
+// admin analytics top-rewards-claimed Hook
+interface TopRewardsQuery {
+  filter?: "daily" | "weekly" | "monthly";
+  page?: number;
+  limit?: number;
+}
+
+export const useTopRewardsClaimed = (queryParams: TopRewardsQuery) => {
+  return useQuery({
+    queryKey: ["topRewardsClaimed", queryParams],
+    queryFn: async () => {
+      const session = await getSession();
+      const token = session?.user?.accessToken;
+
+      if (!token) throw new Error("No access token found");
+
+      return getTopRewardsClaimed(queryParams, token);
+    }
   });
 };
