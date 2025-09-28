@@ -1,93 +1,179 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import type { Reward } from "@/lib/types"
-import { mockRewards } from "@/lib/data/mock-data"
+import { PaginationParams, Reward } from "@/types/types";
+import { useState, useEffect, useCallback } from "react";
+import { createRewardApi, rewardsdata } from "../api";
 
-export function useRewards() {
-  const [rewards, setRewards] = useState<Reward[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+interface RewardsPaginationMeta {
+  page: number;
+  limit: number;
+  totalRewards: number;
+  totalPages: number;
+}
+
+interface UseRewardsOptions {
+  initialPage?: number;
+  initialLimit?: number;
+}
+
+export function useRewards(options: UseRewardsOptions = {}) {
+  const { initialPage = 1, initialLimit = 10 } = options;
+
+  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState<RewardsPaginationMeta>({
+    page: initialPage,
+    limit: initialLimit,
+    totalRewards: 0,
+    totalPages: 1,
+  });
+
+  const fetchRewardsData = useCallback(async (params: PaginationParams) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await rewardsdata(pagination.page);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mappedRewards: Reward[] = response.data.rewards.map((r: any) => ({
+        id: r._id,
+        rewardName: r.rewardName,
+        description: r.description,
+        couponCode: r.couponCode,
+        stock: r.stock,
+        maxStock: r.stockLimit,
+        expiry: r.expiryDays,
+        date: new Date(r.createdAt).toLocaleDateString("en-GB"),
+        requireReview: r.requiresReview,
+        createdAt: new Date(r.createdAt),
+        updatedAt: new Date(r.updatedAt),
+      }));
+
+      setRewards(mappedRewards);
+      setPagination({
+        page: response.data.page,
+        limit: response.data.limit,
+        totalRewards: response.data.totalRewards,
+        totalPages: response.data.totalPages,
+      });
+    } catch (err) {
+      console.error("Failed to fetch rewards:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch rewards");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const goToPage = useCallback((page: number) => {
+    setPagination((prev) => ({ ...prev, page }));
+  }, []);
+
+  const nextPage = useCallback(() => {
+    setPagination((prev) =>
+      prev.page < prev.totalPages ? { ...prev, page: prev.page + 1 } : prev
+    );
+  }, []);
+
+  const previousPage = useCallback(() => {
+    setPagination((prev) =>
+      prev.page > 1 ? { ...prev, page: prev.page - 1 } : prev
+    );
+  }, []);
+
+  const changePageSize = useCallback((limit: number) => {
+    setPagination((prev) => ({ ...prev, limit, page: 1 }));
+  }, []);
+
+  const createReward = useCallback(
+    async (rewardData: {
+      rewardName: string;
+      description: string;
+      couponCode: string;
+      stockLimit: number;
+      expiryDays: number;
+      requireReview?: boolean;
+    }) => {
+      try {
+        setLoading(true);
+        await createRewardApi(rewardData);
+        // Refresh current page after creation
+        await fetchRewardsData({
+          page: pagination.page,
+          limit: pagination.limit,
+        });
+      } catch (err) {
+        console.error("Failed to create reward:", err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchRewardsData, pagination.page, pagination.limit]
+  );
+
+  // const updateRewardById = useCallback(
+  //   async (id: string, rewardData: Partial<CreateRewardPayload>) => {
+  //     try {
+  //       setLoading(true);
+  //       await updateReward(id, rewardData);
+  //       // Refresh current page after update
+  //       await fetchRewardsData({
+  //         page: pagination.page,
+  //         limit: pagination.limit,
+  //       });
+  //     } catch (err) {
+  //       console.error("Failed to update reward:", err);
+  //       throw err;
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   },
+  //   [fetchRewardsData, pagination.page, pagination.limit]
+  // );
+
+  // const deleteRewardById = useCallback(
+  //   async (id: string) => {
+  //     try {
+  //       setLoading(true);
+  //       await deleteReward(id);
+  //       // Refresh current page after deletion
+  //       await fetchRewardsData({
+  //         page: pagination.page,
+  //         limit: pagination.limit,
+  //       });
+  //     } catch (err) {
+  //       console.error("Failed to delete reward:", err);
+  //       throw err;
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   },
+  //   [fetchRewardsData, pagination.page, pagination.limit]
+  // );
+
+  const refresh = useCallback(() => {
+    fetchRewardsData({ page: pagination.page, limit: pagination.limit });
+  }, [fetchRewardsData, pagination.page, pagination.limit]);
 
   useEffect(() => {
-    // Simulate API call
-    const fetchRewards = async () => {
-      try {
-        setLoading(true)
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 500))
-        setRewards(mockRewards)
-      } catch (err) {
-        setError("Failed to fetch rewards")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchRewards()
-  }, [])
-
-  const createReward = async (rewardData: Omit<Reward, "id" | "createdAt" | "updatedAt">) => {
-    try {
-      setLoading(true)
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const newReward: Reward = {
-        ...rewardData,
-        id: Date.now().toString(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-
-      setRewards((prev) => [...prev, newReward])
-      return newReward
-    } catch (err) {
-      setError("Failed to create reward")
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const updateReward = async (id: string, rewardData: Partial<Reward>) => {
-    try {
-      setLoading(true)
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setRewards((prev) =>
-        prev.map((reward) => (reward.id === id ? { ...reward, ...rewardData, updatedAt: new Date() } : reward)),
-      )
-    } catch (err) {
-      setError("Failed to update reward")
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const deleteReward = async (id: string) => {
-    try {
-      setLoading(true)
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      setRewards((prev) => prev.filter((reward) => reward.id !== id))
-    } catch (err) {
-      setError("Failed to delete reward")
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }
+    fetchRewardsData({ page: pagination.page, limit: pagination.limit });
+  }, [fetchRewardsData, pagination.page, pagination.limit]);
 
   return {
     rewards,
     loading,
     error,
+    pagination,
+    // Pagination controls
+    goToPage,
+    nextPage,
+    previousPage,
+    changePageSize,
+    // CRUD operations
     createReward,
-    updateReward,
-    deleteReward,
-  }
+    // updateReward: updateRewardById,
+    // deleteReward: deleteRewardById,
+    refresh,
+  };
 }

@@ -1,13 +1,12 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -15,9 +14,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-// ✅ Zod schema
+// ✅ Schema
 const rewardSchema = z.object({
   rewardName: z.string().min(1, "Reward name is required"),
   stockLimit: z.coerce.number().min(1, "Stock limit is required"),
@@ -25,15 +25,16 @@ const rewardSchema = z.object({
   expiry: z.coerce.number().min(1, "Expiry is required"),
   description: z.string().min(1, "Description is required"),
   requireReview: z.boolean().default(false),
-})
+});
 
-type RewardFormData = z.infer<typeof rewardSchema>
+// ✅ Type inferred from schema
+export type RewardFormData = z.infer<typeof rewardSchema>;
 
 interface RewardFormProps {
-  initialData?: Partial<RewardFormData>
-  onSubmit: (data: RewardFormData) => void
-  onCancel?: () => void
-  isLoading?: boolean
+  initialData?: Partial<RewardFormData>;
+  onSubmit: (data: RewardFormData) => void | Promise<void>;
+  onCancel?: () => void;
+  isLoading?: boolean;
 }
 
 export function RewardForm({
@@ -42,7 +43,7 @@ export function RewardForm({
   onCancel,
   isLoading,
 }: RewardFormProps) {
-  const form = useForm<RewardFormData>({
+  const form = useForm({
     resolver: zodResolver(rewardSchema),
     defaultValues: {
       rewardName: initialData?.rewardName ?? "",
@@ -52,7 +53,7 @@ export function RewardForm({
       description: initialData?.description ?? "",
       requireReview: initialData?.requireReview ?? false,
     },
-  })
+  });
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -62,6 +63,7 @@ export function RewardForm({
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {/* ✅ Pass generic <RewardFormData> so types match */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-2 gap-6">
@@ -198,8 +200,8 @@ export function RewardForm({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Require review before claiming</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Customer must leave a review before they can claim
-                      this reward.
+                      Customer must leave a review before they can claim this
+                      reward.
                     </p>
                   </div>
                 </FormItem>
@@ -230,5 +232,5 @@ export function RewardForm({
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

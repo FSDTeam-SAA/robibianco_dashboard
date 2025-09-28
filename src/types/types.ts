@@ -10,28 +10,29 @@ export interface Reward {
   requireReview: boolean;
   createdAt: Date;
   updatedAt: Date;
-  _id: string;
-  prizeCode: string;
-  rewardClaimedStatus: "pending" | "claimed" | "expired";
-  rating?: number;
-  comment?: string;
-  spinResult?: {
-    rewardName?: string;
-  };
 }
 
-export interface Review {
-  id: string;
-  userName: string;
-  userEmail: string;
-  contactNumber: string;
-  comment: string;
-  rating: number;
-  date: string;
-  rewardId?: string;
-  status: "pending" | "approved" | "rejected";
-  createdAt: Date;
-}
+// In your types file (e.g., lib/types.ts)
+// In @/types/types.ts
+// export interface Review {
+//   _id: string;
+//   name: string;
+//   email: string;
+//   phone: string;
+//   rating: number;
+//   comment: string;
+//   spinResult: {
+//     _id: string;
+//     rewardName: string;
+//     description: string;
+//     couponCode: string;
+//   } | null;
+//   prizeCode: string | null;
+//   rewardClaimedStatus: string;
+//   createdAt: string;
+//   updatedAt: string;
+//   __v: number;
+// }
 
 export interface User {
   _id: string;
@@ -65,16 +66,54 @@ export interface UserQuery {
   limit?: number;
 }
 
-export interface UsersApiResponse {
-  users: User[];
-  page: number;
-  totalPages: number;
-  totalUsers: number;
+export interface SpinResult {
+  _id: string;
+  rewardName: string;
+  description: string;
+  couponCode: string;
 }
 
-export interface UserApiResponse {
+export interface Review {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  rating: number;
+  comment: string;
+  spinResult: SpinResult;
+  prizeCode: string | null;
+  rewardClaimedStatus: "pending" | "claimed" | "not_eligible";
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface PaginationParams {
+  page: number;
+  limit: number;
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalReviews: number;
+  totalPages: number;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface ApiResponse<T = any> {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface ReviewsApiResponse extends ApiResponse {
   data: {
-    user: User;
-    rewards: Reward[];
+    reviews: Review[];
+    page: number;
+    limit: number;
+    totalReviews: number;
+    totalPages: number;
   };
 }

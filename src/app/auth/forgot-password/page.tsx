@@ -16,8 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { forgatePassword } from "@/lib/auth/auth";
-
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 
 // 1️⃣ Define form schema - Only email needed for forgot password
@@ -35,28 +35,29 @@ export default function ForgotPassword() {
       email: "",
     },
   });
-    const router = useRouter();
+  const router = useRouter();
 
   const sentotpMutation = useMutation({
-    mutationKey: ['sentotp'],
+    mutationKey: ["sentotp"],
     mutationFn: (email: string) => forgatePassword(email),
-    onSuccess: () => {
-      console.log("OTP sent successfully");
-      router.push("/auth/reset-password");
+    onSuccess: (data, variables) => { 
+      if (data.message === "User not found") {
+        toast.error("User not found");
+      } else {
+        // Use the email from variables (the email that was submitted)
+        router.push(`/auth/verify-otp?email=${encodeURIComponent(variables)}`);
+        toast.success("OTP sent successfully!");
+      }
     },
     onError: (error) => {
       console.error("Failed to send OTP:", error);
-      // You can add error handling here
-    }
+      toast.error("Failed to send OTP. Please try again.");
+    },
   });
 
-  const handleSubmit = (values: ForgotPasswordFormValues) => {
+  // Simplified form submission handler
+  const onSubmit = (values: ForgotPasswordFormValues) => {
     sentotpMutation.mutate(values.email);
-  };
-
-  const handelotp = (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
-    form.handleSubmit(handleSubmit)();
   };
 
   return (
@@ -68,13 +69,14 @@ export default function ForgotPassword() {
             Forgot Password
           </h1>
           <p className="text-[#B0B0B0] text-[16px] font-normal leading-[120%]">
-            Enter your registered email address. We&apos;ll send you a code to reset your password.
+            Enter your registered email address. We&apos;ll send you a code to
+            reset your password.
           </p>
         </div>
 
         {/* Forgot Password Form */}
         <Form {...form}>
-          <form onSubmit={handelotp} className="flex flex-col gap-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
             {/* Email Field */}
             <FormField
               control={form.control}
@@ -88,7 +90,7 @@ export default function ForgotPassword() {
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#48A256] h-4 w-4" />
                       <Input
-                        placeholder="Email"
+                        placeholder="Enter your email"
                         type="email"
                         {...field}
                         className="pl-10"
@@ -104,7 +106,7 @@ export default function ForgotPassword() {
             <Button
               type="submit"
               disabled={sentotpMutation.isPending}
-              className="w-full mt-2 bg-[#48A256] hover:bg-[#4f975a] text-white cursor-pointer font-medium py-2.5"
+              className="w-full mt-2 bg-[#48A256] hover:bg-[#4f975a] text-white cursor-pointer font-medium py-2.5 disabled:opacity-50"
             >
               {sentotpMutation.isPending ? "Sending..." : "Send OTP"}
             </Button>
