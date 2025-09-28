@@ -215,7 +215,7 @@ export function RewardForm({
                   type="button"
                   variant="outline"
                   onClick={onCancel}
-                  className="flex-1 bg-transparent"
+                  className="flex-1 bg-transparent cursor-pointer"
                 >
                   Cancel
                 </Button>
@@ -223,7 +223,7 @@ export function RewardForm({
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 bg-[#48a256] hover:bg-[#48a256]/90 text-white"
+                className="flex-1 bg-[#6366f1] hover:bg-[#6366f1]/90 text-white cursor-pointer"
               >
                 {isLoading ? "Saving..." : "Save"}
               </Button>
