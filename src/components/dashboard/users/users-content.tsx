@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Star, Download } from "lucide-react";
+import { Star, Download, AlertCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -77,8 +77,33 @@ export function UsersContent() {
     document.body.removeChild(link);
   };
 
-  if (isLoading) return <p>Loading users...</p>;
-  if (error) return <p>Error loading users.</p>;
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center space-x-4 animate-pulse">
+            <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+            <div className="flex-1 space-y-2 py-1">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-40 bg-red-50 border border-red-200 rounded-lg p-6 space-y-2">
+        <AlertCircle className="w-8 h-8 text-red-500" />
+        <p className="text-red-700 font-medium">Failed to load users.</p>
+        <p className="text-red-500 text-sm">
+          Please check your connection or try again later.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -154,7 +179,7 @@ export function UsersContent() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-[#6366F1] cursor-pointer"
+                    className="border-[#6366F1] cursor-pointer border-2 text-[#3C3C3C]"
                     onClick={() => setSelectedUserId(user._id)}
                   >
                     View Details
@@ -172,29 +197,41 @@ export function UsersContent() {
           Showing page {data?.page} of {totalPages} ({data?.totalUsers} users)
         </p>
         <div className="flex items-center space-x-2">
+          {/* Previous Button */}
           <Button
             size="sm"
             variant="outline"
             disabled={page === 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
+            className="border-black text-black bg-white hover:bg-gray-100  cursor-pointer"
           >
             {"<"}
           </Button>
+
+          {/* Page Numbers */}
           {Array.from({ length: totalPages }).map((_, i) => (
             <Button
               key={i}
               size="sm"
               variant={page === i + 1 ? "default" : "outline"}
               onClick={() => setPage(i + 1)}
+              className={
+                page === i + 1
+                  ? "bg-[#6366F1] text-black border-black cursor-pointer hover:bg-[#6366F1]"
+                  : "bg-white text-black border-black hover:bg-gray-100  cursor-pointer"
+              }
             >
               {i + 1}
             </Button>
           ))}
+
+          {/* Next Button */}
           <Button
             size="sm"
             variant="outline"
             disabled={page === totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            className="border-black text-black bg-white hover:bg-gray-100  cursor-pointer"
           >
             {">"}
           </Button>

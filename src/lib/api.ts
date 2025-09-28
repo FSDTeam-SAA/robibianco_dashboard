@@ -47,3 +47,34 @@ export async function getUserById(userId: string, token: string) {
     throw new Error(`Failed to fetch user`);
   }
 }
+
+
+
+// Change Password
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string,
+  token: string
+) {
+  try {
+    const res = await apiBase.patch(
+      `/user/change-password`,
+      {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    throw new Error(`Failed to change password`);
+  }
+}
