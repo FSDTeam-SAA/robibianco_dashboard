@@ -13,6 +13,7 @@ export const forgatePassword = async (email: string) => {
     });
 
     const data = await res.json();
+    console.log(data)
     return data;
   } catch (error) {
     if (error instanceof Error) {

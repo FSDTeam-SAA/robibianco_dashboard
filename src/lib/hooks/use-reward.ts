@@ -101,6 +101,7 @@ export function useRewards(options: UseRewardsOptions = {}) {
         await fetchRewardsData({
           page: pagination.page,
           limit: pagination.limit,
+          searchQuery: ""
         });
       } catch (err) {
         console.error("Failed to create reward:", err);
@@ -153,11 +154,14 @@ export function useRewards(options: UseRewardsOptions = {}) {
   // );
 
   const refresh = useCallback(() => {
-    fetchRewardsData({ page: pagination.page, limit: pagination.limit });
+    fetchRewardsData({page: pagination.page, limit: pagination.limit,   searchQuery: "" });
   }, [fetchRewardsData, pagination.page, pagination.limit]);
 
   useEffect(() => {
-    fetchRewardsData({ page: pagination.page, limit: pagination.limit });
+    fetchRewardsData({
+      page: pagination.page, limit: pagination.limit,
+      searchQuery: ""
+    });
   }, [fetchRewardsData, pagination.page, pagination.limit]);
 
   return {

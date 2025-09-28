@@ -73,11 +73,9 @@ export async function review() {
   }
 }
 
-
-
-export async function rewardsdata(page:number) {
+export async function rewardsdata(page: number) {
   try {
-    const res = await apiBase.get(`/rewards?page=${page}&limit=5`);
+    const res = await apiBase.get(`/rewards?page=${page}&limit=10`);
     return res.data;
   } catch (error) {
     if (error instanceof Error) {
@@ -86,48 +84,52 @@ export async function rewardsdata(page:number) {
   }
 }
 
-
 export async function createRewardApi(data: {
-  rewardName: string
-  description: string
-  couponCode: string
-  stockLimit: number
-  expiryDays: number
-  requireReview?: boolean
+  rewardName: string;
+  description: string;
+  couponCode: string;
+  stockLimit: number;
+  expiryDays: number;
+  requireReview?: boolean;
 }) {
-  const res = await apiBase.post("/admin/rewards", data)
-  return res.data
+  const res = await apiBase.post("/admin/rewards", data);
+  return res.data;
 }
 
-
-
 ///////////
-import type { ReviewsApiResponse, PaginationParams } from "@/types/types"
+import type { ReviewsApiResponse, PaginationParams } from "@/types/types";
 
-export async function fetchReviews(params: PaginationParams = { page: 1, limit: 10 }): Promise<ReviewsApiResponse> {
+export async function fetchReviews(
+  params: PaginationParams = {
+    page: 1,
+    limit: 10,
+    searchQuery: "",
+  }
+): Promise<ReviewsApiResponse> {
   const searchParams = new URLSearchParams({
+    filter: params.searchQuery,
     page: params.page.toString(),
     limit: params.limit.toString(),
-  })
+  });
 
   const response = await apiBase.get(`/admin/reviews?${searchParams}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-  })
+  });
 
   // if (!response.ok) {
   //   throw new Error(`HTTP error! status: ${response.status}`)
   // }
 
-  const data = await response.data
+  const data = await response.data;
 
   if (!data.success) {
-    throw new Error(data.message || "Failed to fetch reviews")
+    throw new Error(data.message || "Failed to fetch reviews");
   }
 
-  return data
+  return data;
 }
 
 // export async function updateReviewStatus(id: string, status: "pending" | "claimed" | "not_eligible") {
@@ -240,7 +242,7 @@ export async function getTopRewardsClaimed(
     });
 
     if (res.data && res.data.data) {
-      return res.data;  
+      return res.data;
     } else {
       throw new Error("No data returned from top-rewards-claimed API");
     }

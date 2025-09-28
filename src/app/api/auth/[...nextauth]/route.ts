@@ -32,11 +32,11 @@ const handler = NextAuth({
             body: requestBody,
           });
 
-          console.log('📥 Response status:', res.status);
-          console.log('📥 Response ok:', res.ok);
+          // console.log('📥 Response status:', res.status);
+          // console.log('📥 Response ok:', res.ok);
           
           const responseText = await res.text();
-          console.log('📥 Raw response:', responseText);
+          // console.log('📥 Raw response:', responseText);
           
           let data;
           try {
@@ -89,13 +89,13 @@ const handler = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      console.log('🔑 JWT callback - user:', user);
+      // console.log('🔑 JWT callback - user:', user);
       if (user) {
         token.id = user.id;
         token.role = user.role;
         token.accessToken = user.accessToken;
       }
-      console.log('🔑 JWT callback - token:', token);
+      // console.log('🔑 JWT callback - token:', token);
       return token;
     },
     async session({ session, token }) {

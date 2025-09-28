@@ -1,4 +1,5 @@
 "use client"
+// import { Filter } from 'lucide-react';
 
 import type { Review, PaginationParams, PaginationMeta } from "@/types/types"
 import { useState, useEffect, useCallback } from "react"
@@ -9,7 +10,7 @@ interface UseReviewsOptions {
   initialLimit?: number
 }
 
-export function useReviews(options: UseReviewsOptions = {}) {
+export function useReviews(searchQuery: string, options: UseReviewsOptions = {}) {
   const { initialPage = 1, initialLimit = 10 } = options
 
   const [reviews, setReviews] = useState<Review[]>([])
@@ -22,6 +23,8 @@ export function useReviews(options: UseReviewsOptions = {}) {
     totalPages: 0,
   })
 
+  console.log(searchQuery)
+
   const fetchReviewsData = useCallback(
     async (params?: PaginationParams) => {
       try {
@@ -29,6 +32,7 @@ export function useReviews(options: UseReviewsOptions = {}) {
         setError(null)
 
         const paginationParams = params || {
+          searchQuery,
           page: pagination.page,
           limit: pagination.limit,
         }
@@ -51,23 +55,23 @@ export function useReviews(options: UseReviewsOptions = {}) {
         setLoading(false)
       }
     },
-    [pagination.page, pagination.limit],
+    [pagination.page, pagination.limit, searchQuery],
   )
 
   const goToPage = useCallback(
     (page: number) => {
       if (page >= 1 && page <= pagination.totalPages) {
-        fetchReviewsData({ page, limit: pagination.limit })
+        fetchReviewsData({searchQuery , page, limit: pagination.limit })
       }
     },
-    [pagination.limit, pagination.totalPages, fetchReviewsData],
+    [pagination.totalPages, pagination.limit, fetchReviewsData, searchQuery],
   )
 
   const changePageSize = useCallback(
     (limit: number) => {
-      fetchReviewsData({ page: 1, limit })
+      fetchReviewsData({searchQuery, page: 1, limit })
     },
-    [fetchReviewsData],
+    [fetchReviewsData, searchQuery],
   )
 
   const nextPage = useCallback(() => {
@@ -84,7 +88,7 @@ export function useReviews(options: UseReviewsOptions = {}) {
 
   useEffect(() => {
     fetchReviewsData()
-  }, [])
+  }, [searchQuery, pagination.page, pagination.limit, fetchReviewsData])
 
   // const updateReviewStatus = useCallback(
   //   async (id: string, status: Review["rewardClaimedStatus"]) => {

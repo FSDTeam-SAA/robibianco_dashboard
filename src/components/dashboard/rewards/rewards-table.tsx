@@ -52,10 +52,10 @@ export function RewardsTable({
         const percentage = (stock / maxStock) * 100
         return (
           <div className="space-y-2 min-w-[120px]">
-            <div className="text-sm font-medium">
+            <div className="text-sm font-medium ">
               {stock} / {maxStock}
             </div>
-            <Progress value={percentage} className="h-2" />
+            <Progress value={percentage} className="h-2 " />
           </div>
         )
       },
@@ -71,10 +71,10 @@ export function RewardsTable({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEditReward(info.row.original)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
+              <Edit className="mr-2 h-4 w-4 cursor-pointer" /> Edit
             </DropdownMenuItem>
             <DropdownMenuItem className="text-destructive" onClick={() => onDeleteReward(info.row.original.id)}>
-              <Trash2 className="mr-2 h-4 w-4" /> Delete
+              <Trash2 className="mr-2 h-4 w-4 cursor-pointer" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -96,23 +96,23 @@ export function RewardsTable({
     <div className="space-y-4">
       <div className="bg-card rounded-lg border">
         <Table>
-          <TableHeader>
+          <TableHeader >
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} >
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-center">
                     {flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className="text-center">
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id} className="border">{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
                 </TableRow>
               ))
