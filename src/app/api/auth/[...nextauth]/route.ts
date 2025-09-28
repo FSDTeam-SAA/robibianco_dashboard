@@ -43,7 +43,7 @@ const handler = NextAuth({
             data = JSON.parse(responseText);
             console.log('📊 Parsed response data:', data);
           } catch (e) {
-            console.error('❌ Failed to parse JSON response');
+            console.error('❌ Failed to parse JSON response', e);
             return null;
           }
 

@@ -64,7 +64,7 @@ const Page = () => {
   const resendOtpMutation = useMutation({
     mutationKey: ["resendotp"],
     mutationFn: (email: string) => forgatePassword(email),
-    onSuccess: (data, variables) => { 
+    onSuccess: (data) => { 
       if (data.message === "User not found") {
         toast.error("User not found");
       } else {

@@ -20,6 +20,7 @@ export function useDashboardStats() {
         setStats(mockDashboardStats)
       } catch (err) {
         setError("Failed to fetch dashboard stats")
+        console.log(err)
       } finally {
         setLoading(false)
       }
@@ -36,6 +37,7 @@ export function useDashboardStats() {
       setStats(mockDashboardStats)
     } catch (err) {
       setError("Failed to refresh stats")
+      console.log(err)
     } finally {
       setLoading(false)
     }
