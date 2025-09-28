@@ -15,7 +15,11 @@ import {
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Review Management", href: "/review-management", icon: MessageSquare },
+  {
+    name: "Review Management",
+    href: "/review-management",
+    icon: MessageSquare,
+  },
   { name: "Spin Wheel Rewards", href: "/rewards", icon: Gift },
   { name: "User", href: "/users", icon: User },
   { name: "Setting", href: "/settings", icon: Settings },
@@ -30,13 +34,15 @@ const Sidebar = () => {
   const handleLogout = () => {
     // Here you can call your logout API or remove auth tokens
     console.log("Logging out...");
-    router.push("/auth/signin");  
+    router.push("/auth/signin");
   };
 
   return (
     <div className="flex h-full flex-col border-r bg-white">
-      <div className="flex h-16 items-center px-6">
-        <h1 className="text-xl font-bold text-[#f97316]">Your Logo</h1>
+      <div className="flex h-20 items-center px-8 ">
+        <h1 className="text-3xl font-black text-[#6366f1] text-center">
+          Dashboard
+        </h1>
       </div>
       <nav className="flex-1 space-y-4 px-4 py-4">
         {navigation.map((item) => {

@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { useChangePassword, useUserById } from "@/lib/hooks/useAllUsers";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 export function SettingsContent() {
   const [formData, setFormData] = useState({
@@ -54,13 +55,14 @@ export function SettingsContent() {
       { currentPassword, newPassword, confirmPassword },
       {
         onSuccess: () => {
-          alert("Password changed successfully!");
+          // alert("Password changed successfully!");
+          toast.success("Password changed successfully!")
           setFormData({
             currentPassword: "",
             newPassword: "",
             confirmPassword: "",
           });
-          setPasswordError(""); // clear error
+          setPasswordError(""); 
         },
         onError: (err) => {
           setPasswordError(err?.message || "Failed to change password");

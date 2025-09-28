@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -56,46 +56,12 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-// function RewardStatus({
-//   status,
-//   spinResult,
-//   prizeCode,
-// }: {
-//   status: string;
-//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   spinResult: any;
-//   prizeCode: string | null;
-// }) {
-//   if (status === "not_eligible") {
-//     return <span className="text-muted-foreground">Not Eligible</span>;
-//   }
-
-//   if (spinResult && prizeCode) {
-//     return (
-//       <div className="space-y-1">
-//         <div className="font-medium">{spinResult.rewardName}</div>
-//         <div className="text-xs text-muted-foreground">Code: {prizeCode}</div>
-//         <span
-//           className={`px-2 py-1 rounded-full text-xs ${
-//             status === "claimed"
-//               ? "bg-green-100 text-green-800"
-//               : "bg-yellow-100 text-yellow-800"
-//           }`}
-//         >
-//           {status === "claimed" ? "Claimed" : "Pending"}
-//         </span>
-//       </div>
-//     );
-//   }
-
-//   return <span className="text-muted-foreground">No reward</span>;
-// }
-
 interface ReviewsTableProps {
   timeFilter: string;
+  setReviewData: React.Dispatch<React.SetStateAction<Review[]>>;
 }
 
-export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
+export function ReviewsTable({ timeFilter, setReviewData }: ReviewsTableProps) {
   const {
     reviews,
     loading,
@@ -105,38 +71,16 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
     nextPage,
     previousPage,
     changePageSize,
-  } = useReviews();
+  } = useReviews(timeFilter);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  // Filter reviews based on time filter (client-side filtering for current page)
-  const filteredReviews = useMemo(() => {
-    if (timeFilter === "all") return reviews;
-
-    const now = new Date();
-    const filterDate = new Date();
-
-    switch (timeFilter) {
-      case "today":
-        filterDate.setHours(0, 0, 0, 0);
-        break;
-      case "lastWeek":
-        filterDate.setDate(now.getDate() - 7);
-        break;
-      case "lastMonth":
-        filterDate.setMonth(now.getMonth() - 1);
-        break;
-      default:
-        return reviews;
+  useEffect(() => {
+    if (reviews && reviews.length > 0) {
+      setReviewData(reviews);
     }
-
-    return reviews.filter((review) => {
-      const reviewDate = new Date(review.createdAt);
-      return reviewDate >= filterDate;
-    });
-  }, [reviews, timeFilter]);
-
+  }, [reviews, setReviewData]);
   const columns = [
     columnHelper.accessor("name", {
       header: "User Name",
@@ -166,16 +110,6 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
       header: "Reward",
       cell: (info) => <StarRating rating={info.getValue()} />,
     }),
-    // columnHelper.accessor("rewardClaimedStatus", {
-    //   header: "Reward",
-    //   cell: (info) => (
-    //     <RewardStatus
-    //       status={info.getValue()}
-    //       spinResult={info.row.original.spinResult}
-    //       prizeCode={info.row.original.prizeCode}
-    //     />
-    //   ),
-    // }),
     columnHelper.accessor("createdAt", {
       header: "Date",
       cell: (info) => (
@@ -185,7 +119,7 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
   ];
 
   const table = useReactTable({
-    data: filteredReviews,
+    data: reviews,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -196,7 +130,7 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
       sorting,
       columnFilters,
     },
-    manualPagination: true, // Enable manual pagination for server-side control
+    manualPagination: true,
     pageCount: pagination.totalPages,
   });
 
@@ -224,7 +158,7 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-center">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -236,12 +170,12 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className="text-center">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="border">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
