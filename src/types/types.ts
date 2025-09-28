@@ -36,15 +36,15 @@ export interface Reward {
 
 export interface User {
   _id: string;
-  email: string;
   fullName: string;
+  email: string;
   phone?: string;
-  gender?: string;
-  totalRewards?: number;
-  totalSpins?: number;
-  role?: string;
-  status?: string;
+  status: "active" | "inactive" | "banned";
+  role: "user" | "admin" | "superadmin";
+  isEmailVerified: boolean;
   rating?: number;
+  totalSpins?: number;
+  totalRewards?: number;
 }
 
 export interface DashboardStats {

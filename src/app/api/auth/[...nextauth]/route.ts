@@ -13,8 +13,8 @@ const handler = NextAuth({
         console.log('🔐 Authorization attempt with credentials:', credentials?.email);
 
         try {
-          const apiUrl = `http://localhost:5001/api/v1/auth/login`;
-          console.log('🌐 Calling API endpoint:', apiUrl);
+          const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/login`;
+          // console.log('🌐 Calling API endpoint:', apiUrl);
           
           const requestBody = JSON.stringify({
             email: credentials?.email,
@@ -42,8 +42,8 @@ const handler = NextAuth({
           try {
             data = JSON.parse(responseText);
             console.log('📊 Parsed response data:', data);
-          } catch (e) {
-            console.error('❌ Failed to parse JSON response', e);
+          } catch {
+            console.error('❌ Failed to parse JSON response');
             return null;
           }
 

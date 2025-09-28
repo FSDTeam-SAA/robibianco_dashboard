@@ -151,3 +151,101 @@ export async function fetchReviews(params: PaginationParams = { page: 1, limit: 
 
 //   return data
 // }
+// Change Password
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string,
+  token: string
+) {
+  try {
+    const res = await apiBase.patch(
+      `/user/change-password`,
+      {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    throw new Error(`Failed to change password`);
+  }
+}
+
+// Fetch spins over time from dashboard analytics
+export async function getSpinsOverTime({ filter }: UserQuery, token: string) {
+  try {
+    const res = await apiBase.get(`/admin/analytics/spins-over-time`, {
+      params: { filter },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    // Ensure data exists before returning
+    if (res.data && res.data.data) {
+      return res.data.data;
+    } else {
+      throw new Error("No data returned from spins-over-time API");
+    }
+  } catch (err) {
+    console.error("Error fetching spins over time:", err);
+    throw new Error("Failed to fetch spins analytics");
+  }
+}
+
+//  get review-distribution
+export async function geTreviewDistribution(
+  { filter }: UserQuery,
+  token: string
+) {
+  try {
+    const res = await apiBase.get(`/admin/analytics/review-distribution`, {
+      params: { filter },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    // Ensure data exists before returning
+    if (res.data && res.data.data) {
+      return res.data.data;
+    } else {
+      throw new Error("No data returned from review-distribution API");
+    }
+  } catch (err) {
+    console.error("Error fetching review distribution", err);
+    throw new Error("Failed to fetch review distribution");
+  }
+}
+
+// admin analytics top-rewards-claimed
+// admin analytics top-rewards-claimed
+export async function getTopRewardsClaimed(
+  { filter, page, limit }: { filter?: string; page?: number; limit?: number },
+  token: string
+) {
+  try {
+    const res = await apiBase.get(`/admin/analytics/top-rewards-claimed`, {
+      params: { filter, page, limit },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.data && res.data.data) {
+      return res.data;  
+    } else {
+      throw new Error("No data returned from top-rewards-claimed API");
+    }
+  } catch (err) {
+    console.error("Error fetching top-rewards-claimed", err);
+    throw new Error("Failed to fetch top-rewards-claimed data");
+  }
+}
