@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useDashboardStats } from "@/lib/hooks/use-dashboard-stats";
+// import { useDashboardStats } from "@/lib/hooks/use-dashboard-stats";
 import { SpinsOverTimeChart } from "./spins-over-time-chart";
 import { ReviewDistributionChart } from "./review-distribution-chart";
 import { TopRewardsTable } from "./top-rewards-table";
@@ -25,7 +25,7 @@ interface SpinOverTimeItem {
 type FilterType = "daily" | "weekly" | "monthly";
 
 export function DashboardContent() {
-  const { stats, loading } = useDashboardStats();
+  // const { stats, loading } = useDashboardStats();
 
   // Local state for filter
   const [filter, setFilter] = useState<FilterType>("daily");
@@ -42,23 +42,8 @@ export function DashboardContent() {
       day: item.label,
       spins: item.count,
     })) || [];
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading dashboard...</div>
-      </div>
-    );
-  }
-
-  if (!stats) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">
-          Failed to load dashboard data
-        </div>
-      </div>
-    );
-  }
+ 
+ 
 
   return (
     <div className="space-y-6">

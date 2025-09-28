@@ -1,5 +1,6 @@
 export interface Reward {
   id: string;
+  _id: string;
   rewardName: string;
   description: string;
   couponCode: string;
@@ -10,6 +11,16 @@ export interface Reward {
   requireReview: boolean;
   createdAt: Date;
   updatedAt: Date;
+  spinResult: {
+    _id: string;
+    rewardName: string;
+    description: string;
+    couponCode: string;
+  } | null;
+  rating: number;
+  comment: string;
+  prizeCode: string;
+  rewardClaimedStatus: string;
 }
 
 // In your types file (e.g., lib/types.ts)
@@ -115,5 +126,19 @@ export interface ReviewsApiResponse extends ApiResponse {
     limit: number;
     totalReviews: number;
     totalPages: number;
+  };
+}
+
+export interface UsersApiResponse {
+  users: User[];
+  page: number;
+  totalPages: number;
+  totalUsers: number;
+}
+
+export interface UserApiResponse {
+  data: {
+    user: User;
+    rewards: Reward[];
   };
 }
