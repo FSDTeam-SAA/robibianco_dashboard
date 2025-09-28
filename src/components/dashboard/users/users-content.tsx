@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Star, Download, AlertCircle } from "lucide-react";
+import { Download, AlertCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -146,7 +146,7 @@ export function UsersContent() {
             <TableRow className="font-medium">
               <TableHead className="border text-center">User Name</TableHead>
               <TableHead className="border text-center">User Email</TableHead>
-              <TableHead className="border text-center">Ratings</TableHead>
+              {/* <TableHead className="border text-center">Ratings</TableHead> */}
               <TableHead className="border text-center">Spins Time</TableHead>
               <TableHead className="text-center border">Actions</TableHead>
             </TableRow>
@@ -159,7 +159,7 @@ export function UsersContent() {
               >
                 <TableCell className="border">{user.fullName}</TableCell>
                 <TableCell className="border">{user.email}</TableCell>
-                <TableCell className="flex space-x-1 justify-center border">
+                {/* <TableCell className="flex space-x-1 justify-center border">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
@@ -170,7 +170,7 @@ export function UsersContent() {
                       }`}
                     />
                   ))}
-                </TableCell>
+                </TableCell> */}
                 <TableCell className="border">
                   {user.totalSpins || 0} Tried <br />
                   <span>{user.totalRewards || 0} rewards</span>

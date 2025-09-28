@@ -1,29 +1,36 @@
-"use client"
+"use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-interface ReviewDistributionChartProps {
-  positiveReviews: number
-  negativeReviews: number
+interface ReviewDistributionData {
+  positive: number;
+  positivePercentage: string;
+  negative: number;
+  negativePercentage: string;
+  total: number;
 }
 
-export function ReviewDistributionChart({ positiveReviews, negativeReviews }: ReviewDistributionChartProps) {
-  const total = positiveReviews + negativeReviews
-  const positivePercentage = Math.round((positiveReviews / total) * 100)
-  const negativePercentage = Math.round((negativeReviews / total) * 100)
+interface ReviewDistributionChartProps {
+  data: ReviewDistributionData;
+}
 
-  const data = [
-    { name: "Positive", value: positivePercentage, color: "#48a256" },
-    { name: "Negative", value: negativePercentage, color: "#f97316" },
-  ]
+export function ReviewDistributionChart({
+  data,
+}: ReviewDistributionChartProps) {
+  if (!data) return null;
+
+  const chartData = [
+    { name: "Positive", value: parseFloat(data.positivePercentage), color: "#48a256" },
+    { name: "Negative", value: parseFloat(data.negativePercentage), color: "#f97316" },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="h-48">
+      <div className="h-60">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={data}
+              data={chartData}
               cx="50%"
               cy="50%"
               innerRadius={60}
@@ -32,7 +39,7 @@ export function ReviewDistributionChart({ positiveReviews, negativeReviews }: Re
               dataKey="value"
               strokeWidth={0}
             >
-              {data.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
@@ -41,15 +48,18 @@ export function ReviewDistributionChart({ positiveReviews, negativeReviews }: Re
       </div>
 
       <div className="space-y-3">
-        {data.map((item) => (
+        {chartData.map((item) => (
           <div key={item.name} className="flex items-center space-x-3">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-sm font-medium">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: item.color }}
+            />
+            <span className="text-[17px] font-medium text-[#1F2937]">
               {item.value}% {item.name}
             </span>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }
