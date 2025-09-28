@@ -1,4 +1,4 @@
-import type { Reward, Review, User, DashboardStats } from "@/lib/types"
+import type { Reward, Review,   DashboardStats } from "@/lib/types"
 
 export const mockRewards: Reward[] = [
   {
@@ -80,28 +80,7 @@ export const mockReviews: Review[] = [
   },
 ]
 
-export const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Esther Howard",
-    email: "Howard@gmail.com",
-    contactNumber: "+1 (555) 234-5678",
-    totalSpins: 25,
-    totalRewards: 5,
-    joinDate: "15/5/2025",
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Devon Lane",
-    email: "Devon@gmail.com",
-    contactNumber: "+1 (555) 234-5678",
-    totalSpins: 18,
-    totalRewards: 3,
-    joinDate: "20/5/2025",
-    status: "active",
-  },
-]
+ 
 
 export const mockDashboardStats: DashboardStats = {
   totalSpins: 1250,

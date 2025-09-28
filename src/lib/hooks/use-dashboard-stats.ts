@@ -18,7 +18,7 @@ export function useDashboardStats() {
         // Simulate network delay
         await new Promise((resolve) => setTimeout(resolve, 500))
         setStats(mockDashboardStats)
-      } catch (err) {
+      } catch   {
         setError("Failed to fetch dashboard stats")
       } finally {
         setLoading(false)
@@ -34,7 +34,7 @@ export function useDashboardStats() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 500))
       setStats(mockDashboardStats)
-    } catch (err) {
+    } catch  {
       setError("Failed to refresh stats")
     } finally {
       setLoading(false)
