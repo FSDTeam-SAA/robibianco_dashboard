@@ -11,7 +11,9 @@ import {
   User,
   Settings,
   LogOut,
+  // LogOut,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -34,6 +36,7 @@ const Sidebar = () => {
   const handleLogout = () => {
     // Here you can call your logout API or remove auth tokens
     console.log("Logging out...");
+    signOut({ callbackUrl: "/auth/signin" });
     router.push("/auth/signin");
   };
 
