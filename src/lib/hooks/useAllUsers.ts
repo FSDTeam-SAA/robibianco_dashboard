@@ -1,7 +1,7 @@
 // useAllUsers.ts
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getSession } from "next-auth/react";
-import { getAllUsers, getUserById } from "../api";
+import { changePassword, getAllUsers, getUserById } from "../api";
 
 // API function params
 interface UserQuery {
@@ -42,7 +42,33 @@ export const useUserById = (userId: string) => {
       // Call API and pass token
       return getUserById(userId, token);
     },
-    enabled: !!userId, // only run if userId exists
-    staleTime: 1000 * 60 * 5, // optional cache for 5 mins
+    enabled: !!userId,  
+  });
+};
+
+interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+
+
+// Hook for changing password
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: async ({
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    }: ChangePasswordInput) => {
+      const session = await getSession();
+      const token = session?.user?.accessToken;
+
+      if (!token) throw new Error("No access token found");
+
+      // Call API with token
+      return changePassword(currentPassword, newPassword, confirmPassword, token);
+    },
   });
 };

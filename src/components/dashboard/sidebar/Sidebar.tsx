@@ -23,12 +23,13 @@ const navigation = [
 
 const Sidebar = () => {
   const pathname = usePathname();
+
   return (
-    <div className="flex h-full w-64 flex-col bg-sidebar">
+    <div className="flex h-full  flex-col border-r bg-white">
       <div className="flex h-16 items-center px-6">
         <h1 className="text-xl font-bold text-[#f97316]">Your Logo</h1>
       </div>
-      <nav className="flex-1 space-y-1 px-4 py-4">
+      <nav className="flex-1 space-y-4 px-4 py-4">
         {navigation.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -39,14 +40,22 @@ const Sidebar = () => {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "group flex items-center justify-start rounded-lg border border-[#EEF2FF] px-4 py-4 text-lg font-medium transition-all relative",
                 isActive
-                  ? "bg-[#6366f1] text-white"
-                  : "text-sidebar-foreground hover:bg-accent hover:text-accent-foreground"
+                  ? "bg-[#EEF0FF] text-[#6366F1] font-medium"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
               )}
             >
-              <item.icon className="mr-3 h-5 w-5" />
+              <item.icon
+                className={cn(
+                  "mr-3 h-5 w-5",
+                  isActive ? "text-[#6366F1]" : "text-gray-500"
+                )}
+              />
               {item.name}
+              {isActive && (
+                <span className="absolute right-0 top-0 h-full w-[3px] rounded-sm bg-[#6366F1]  " />
+              )}
             </Link>
           );
         })}
