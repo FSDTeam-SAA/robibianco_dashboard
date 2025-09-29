@@ -27,7 +27,7 @@ export function useReviews(
   const [page, setPage] = useState(initialPage);
   const [limit, setLimit] = useState(initialLimit);
 
-  // Reset to page 1 when timeFilter changes
+
   useEffect(() => {
     setPage(1);
   }, [timeFilter]);
@@ -41,17 +41,19 @@ export function useReviews(
   } = useQuery<ReviewsResponse>({
     queryKey: ["reviews", timeFilter, page, limit],
     queryFn: async () => {
-      const params: PaginationParams = {
+      const params: PaginationParams & { timeFilter?: string } = {
         searchQuery: "",
         page,
         limit,
-        timeFilter: timeFilter !== "all" ? timeFilter : undefined, // Only pass if not "all"
+        timeFilter: timeFilter, 
       };
+
+    
+
       const response = await fetchReviews(params);
       return response.data;
     },
-   
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
   const pagination: PaginationMeta = {

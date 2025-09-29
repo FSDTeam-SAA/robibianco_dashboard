@@ -108,19 +108,20 @@ export async function fetchReviews(
     page: 1,
     limit: 10,
     searchQuery: "",
-    timeFilter: "all",
   }
 ): Promise<ReviewsApiResponse> {
   const searchParams = new URLSearchParams({
-    filter: params.searchQuery,
     page: params.page.toString(),
     limit: params.limit.toString(),
   });
 
-  // Add timeFilter to query params if it's provided and not "all"
+  // Add filter parameter for time filtering
   if (params.timeFilter && params.timeFilter !== "all") {
-    searchParams.append("timeFilter", params.timeFilter);
+    searchParams.append("filter", params.timeFilter);
   }
+  // For "all", don't send any filter parameter
+
+  console.log("🔗 Making API call to:", `/admin/reviews?${searchParams.toString()}`);
 
   const response = await apiBase.get(`/admin/reviews?${searchParams}`, {
     method: "GET",
@@ -128,18 +129,7 @@ export async function fetchReviews(
       "Content-Type": "application/json",
     },
   });
-
-//   if (!response.ok) {
-//     throw new Error(`Failed to fetch reviews: ${response.status}`);
-//   }
-
-//   return response.json();
-// }
   
-  // if (!response.ok) {
-  //   throw new Error(`HTTP error! status: ${response.status}`)
-  // }
-
   const data = await response.data;
 
   if (!data.success) {

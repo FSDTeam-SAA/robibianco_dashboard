@@ -34,8 +34,8 @@ function StarRating({ rating }: { rating: number }) {
         <Star
           key={star}
           className={`h-4 w-4 ${
-            star <= rating 
-              ? "fill-[#f97316] text-[#f97316]" 
+            star <= rating
+              ? "fill-[#f97316] text-[#f97316]"
               : "fill-none text-gray-300"
           }`}
         />
@@ -49,49 +49,55 @@ interface ReviewsTableProps {
 }
 
 export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
-  const { 
-    reviews, 
-    loading, 
-    error, 
-    pagination, 
-    goToPage, 
-    nextPage, 
-    previousPage 
+  const {
+    reviews,
+    loading,
+    error,
+    pagination,
+    goToPage,
+    nextPage,
+    previousPage,
   } = useReviews(timeFilter);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const columns = [
-    columnHelper.accessor("name", { 
-      header: "User Name", 
-      cell: (info) => <div className="font-medium">{info.getValue() || "N/A"}</div> 
+    columnHelper.accessor("name", {
+      header: "User Name",
+      cell: (info) => (
+        <div className="font-medium">{info.getValue() || "N/A"}</div>
+      ),
     }),
-    columnHelper.accessor("email", { 
-      header: "User Email", 
-      cell: (info) => <div className="text-muted-foreground">{info.getValue() || "N/A"}</div> 
+    columnHelper.accessor("email", {
+      header: "User Email",
+      cell: (info) => (
+        <div className="text-muted-foreground">{info.getValue() || "N/A"}</div>
+      ),
     }),
-    columnHelper.accessor("phone", { 
-      header: "Contact Number", 
-      cell: (info) => <div>{info.getValue() || "N/A"}</div> 
+    columnHelper.accessor("phone", {
+      header: "Contact Number",
+      cell: (info) => <div>{info.getValue() || "N/A"}</div>,
     }),
-    columnHelper.accessor("comment", { 
-      header: "Comment", 
+    columnHelper.accessor("comment", {
+      header: "Comment",
       cell: (info) => (
         <div className="max-w-xs">
           <p className="text-sm text-muted-foreground py-2 line-clamp-2">
             {info.getValue() || "No comment"}
           </p>
         </div>
-      ) 
+      ),
     }),
-    columnHelper.accessor("rating", { 
-      header: "Rating", 
-      cell: (info) => <StarRating rating={info.getValue() || 0} /> 
+    columnHelper.accessor("rating", {
+      header: "Rating",
+      cell: (info) => <StarRating rating={info.getValue() || 0} />,
     }),
-    columnHelper.accessor("createdAt", { 
-      header: "Date", 
-      cell: (info) => <div>{new Date(info.getValue()).toLocaleDateString("en-GB")}</div> 
+    columnHelper.accessor("createdAt", {
+      header: "Date",
+      cell: (info) => (
+        <div>{new Date(info.getValue()).toLocaleDateString("en-GB")}</div>
+      ),
     }),
   ];
 
@@ -108,19 +114,46 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
     pageCount: pagination.totalPages,
   });
 
-  // Pagination logic (current ±2 pages)
-  const getVisiblePages = (current: number, total: number, delta = 2): (number | string)[] => {
-    if (total <= 1) return [1];
-    
+  // Pagination with adjacent pages visible
+  const renderPagination = () => {
     const pages: (number | string)[] = [];
-    const left = Math.max(2, current - delta);
-    const right = Math.min(total - 1, current + delta);
-    
+    const currentPage = Number(pagination.page);
+    const totalPages = Number(pagination.totalPages);
+
+    // Show first page
     pages.push(1);
-    if (left > 2) pages.push("...");
-    for (let i = left; i <= right; i++) pages.push(i);
-    if (right < total - 1) pages.push("...");
-    if (total > 1) pages.push(total);
+
+    // Determine the range of pages to show
+    let startPage = Math.max(2, currentPage - 2);
+    let endPage = Math.min(totalPages - 1, currentPage + 2);
+
+    // Adjust range to always show 5 pages (or less if total is small)
+    if (currentPage <= 3) {
+      endPage = Math.min(5, totalPages - 1);
+    } else if (currentPage >= totalPages - 2) {
+      startPage = Math.max(2, totalPages - 4);
+    }
+
+    // Add ellipsis after first page if needed
+    if (startPage > 2) {
+      pages.push("...");
+    }
+
+    // Add pages in range
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    // Add ellipsis before last page if needed
+    if (endPage < totalPages - 1) {
+      pages.push("...");
+    }
+
+    // Show last page (if more than 1 page total)
+    if (totalPages > 1) {
+      pages.push(totalPages);
+    }
+
     return pages;
   };
 
@@ -173,10 +206,12 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
               <TableRow key={hg.id}>
                 {hg.headers.map((header) => (
                   <TableHead key={header.id} className="text-center">
-                    {header.isPlaceholder 
-                      ? null 
-                      : flexRender(header.column.columnDef.header, header.getContext())
-                    }
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -188,15 +223,18 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="border text-center">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell 
-                  colSpan={columns.length} 
+                <TableCell
+                  colSpan={columns.length}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No reviews found.
@@ -211,47 +249,64 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
       {pagination.totalPages > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-            {Math.min(pagination.page * pagination.limit, pagination.totalReviews)} of{" "}
-            {pagination.totalReviews} results
+            Showing{" "}
+            {(Number(pagination.page) - 1) * Number(pagination.limit) + 1} to{" "}
+            {Math.min(
+              Number(pagination.page) * Number(pagination.limit),
+              Number(pagination.totalReviews)
+            )}{" "}
+            of {pagination.totalReviews} results
           </p>
 
           <div className="flex items-center space-x-1">
-            <Button 
-              variant="outline" 
-              className="h-8 w-8 p-0" 
-              onClick={previousPage} 
-              disabled={pagination.page === 1}
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={previousPage}
+              disabled={Number(pagination.page) === 1}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            
-            {getVisiblePages(pagination.page, pagination.totalPages).map((p, idx) => (
-              p === "..." ? (
-                <span key={`ellipsis-${idx}`} className="px-2 text-sm">
-                  ...
-                </span>
-              ) : (
-                <Button 
-                  key={p} 
-                  className={
-                    p === pagination.page 
-                      ? "bg-[#6366F1] text-white hover:bg-[#6366F1]/90" 
-                      : "bg-white text-black hover:bg-gray-100"
-                  } 
-                  size="sm" 
-                  onClick={() => goToPage(p as number)}
+
+            {renderPagination().map((p, idx) => {
+              // Handle ellipsis
+              if (typeof p === "string") {
+                return (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="px-2 py-1 text-sm text-gray-500 flex items-center select-none"
+                  >
+                    ...
+                  </span>
+                );
+              }
+
+              // Handle page numbers
+              const isActive = p === Number(pagination.page);
+              return (
+                <Button
+                  key={`page-${p}`}
+                  variant="outline"
+                  className={`min-w-8 h-8 px-3 transition-colors ${
+                    isActive
+                      ? "bg-[#6366F1] text-white border-[#6366F1] hover:bg-[#5558E3] hover:text-white"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  }`}
+                  size="sm"
+                  onClick={() => goToPage(p)}
                 >
                   {p}
                 </Button>
-              )
-            ))}
-            
-            <Button 
-              variant="outline" 
-              className="h-8 w-8 p-0" 
-              onClick={nextPage} 
-              disabled={pagination.page === pagination.totalPages}
+              );
+            })}
+
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={nextPage}
+              disabled={
+                Number(pagination.page) === Number(pagination.totalPages)
+              }
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
