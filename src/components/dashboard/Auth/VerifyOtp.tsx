@@ -46,7 +46,7 @@ const VerifyOtp = () => {
     mutationFn: ({ email, otp }: { email: string; otp: string }) =>
       verifyOTP({ email, otp }),
     onSuccess: (data, variables) => {
-      console.log("OTP verified successfully:", data);
+      // console.log("OTP verified successfully:", data);
       toast.success("OTP verified successfully!");
 
       // Fixed the router.push line - added missing ? and used variables.email
@@ -79,7 +79,7 @@ const VerifyOtp = () => {
 
   const onSubmit = async (values: OtpFormValues) => {
     const otpCode = values.otp.join("");
-    console.log("Entered OTP:", otpCode);
+    // console.log("Entered OTP:", otpCode);
 
     if (!email) {
       toast.error("Email is required");

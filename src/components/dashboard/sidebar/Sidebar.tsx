@@ -35,7 +35,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     // Here you can call your logout API or remove auth tokens
-    console.log("Logging out...");
+    // console.log("Logging out...");
     signOut({ callbackUrl: "/auth/signin" });
     router.push("/auth/signin");
   };

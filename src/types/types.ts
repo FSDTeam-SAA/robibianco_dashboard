@@ -143,3 +143,12 @@ export interface UserApiResponse {
     rewards: Reward[];
   };
 }
+
+export interface RewardUpdatePayload {
+  rewardName?: string;
+  description?: string;
+  couponCode?: string;
+  stockLimit?: number;
+  expiryDays?: number;
+  requireReview?: boolean;
+}

@@ -97,7 +97,11 @@ export async function createRewardApi(data: {
 }
 
 ///////////
-import type { ReviewsApiResponse, PaginationParams } from "@/types/types";
+import type {
+  ReviewsApiResponse,
+  PaginationParams,
+  RewardUpdatePayload,
+} from "@/types/types";
 
 export async function fetchReviews(
   params: PaginationParams = {
@@ -118,7 +122,7 @@ export async function fetchReviews(
       "Content-Type": "application/json",
     },
   });
-
+  
   // if (!response.ok) {
   //   throw new Error(`HTTP error! status: ${response.status}`)
   // }
@@ -132,27 +136,36 @@ export async function fetchReviews(
   return data;
 }
 
-// export async function updateReviewStatus(id: string, status: "pending" | "claimed" | "not_eligible") {
-//   const response = await apiBase.get(`/admin/reviews/${id}`, {
-//     method: "PATCH",
+// export async function updateReward(id: string, rewardData: RewardUpdatePayload) {
+//   const response = await apiBase.patch(`/admin/rewards/${id}`, {
+//     // method: "PATCH",
 //     headers: {
 //       "Content-Type": "application/json",
 //     },
-//     data: { status },
-//   })
-
-//   // if (!response.ok) {
-//   //   throw new Error(`HTTP error! status: ${response.status}`)
-//   // }
-
-//   const data = await response.json()
-
+//     data: { rewardData },
+//   });
+//   const data = await response.data;
 //   if (!data.success) {
-//     throw new Error(data.message || "Failed to update review")
+//     throw new Error(data.message || "Failed to update review");
 //   }
-
-//   return data
+//   return data;
 // }
+export async function updateReward(
+  id: string,
+  rewardData: RewardUpdatePayload
+) {
+  const response = await apiBase.patch(`/admin/rewards/${id}`, rewardData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = response.data;
+  if (!data.success) {
+    throw new Error(data.message || "Failed to update reward");
+  }
+  return data;
+}
+
 // Change Password
 export async function changePassword(
   currentPassword: string,

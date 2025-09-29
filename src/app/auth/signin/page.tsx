@@ -52,7 +52,7 @@ export default function SignInPage() {
     setIsLoading(true);
     setError(null);
     
-    console.log("🚀 Login attempt with:", values.email);
+    // console.log("🚀 Login attempt with:", values.email);
 
     try {
       const result = await signIn("credentials", {
@@ -62,7 +62,7 @@ export default function SignInPage() {
         callbackUrl: "/",
       });
 
-      console.log("📨 SignIn response:", result);
+      // console.log("📨 SignIn response:", result);
 
       if (result?.error) {
         let errorMessage = "Login failed. Please check your credentials.";
@@ -78,7 +78,7 @@ export default function SignInPage() {
         setError(errorMessage);
         console.error("❌ Login error:", result.error);
       } else if (result?.ok) {
-        console.log("✅ Login successful, redirecting to home");
+        // console.log("✅ Login successful, redirecting to home");
         router.push("/");
         router.refresh();
       }
