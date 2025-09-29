@@ -4,7 +4,7 @@ export interface Reward {
   rewardName: string;
   description: string;
   couponCode: string;
-  expiry: string;
+   expiry: number;
   date: string;
   stock: number;
   maxStock: number;
@@ -21,7 +21,9 @@ export interface Reward {
   comment: string;
   prizeCode: string;
   rewardClaimedStatus: string;
+
 }
+
 
 // In your types file (e.g., lib/types.ts)
 // In @/types/types.ts

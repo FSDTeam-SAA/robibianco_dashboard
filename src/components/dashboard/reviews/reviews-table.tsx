@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -20,25 +20,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Star,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
+
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useReviews } from "@/lib/hooks/use-reviews";
 import type { Review } from "@/types/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const columnHelper = createColumnHelper<Review>();
 
+// ⭐ Reusable star rating component
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex space-x-1">
@@ -61,7 +51,7 @@ interface ReviewsTableProps {
   setReviewData: React.Dispatch<React.SetStateAction<Review[]>>;
 }
 
-export function ReviewsTable({ timeFilter, setReviewData }: ReviewsTableProps) {
+export function ReviewsTable({ timeFilter, }: ReviewsTableProps) {
   const {
     reviews,
     loading,
@@ -70,17 +60,16 @@ export function ReviewsTable({ timeFilter, setReviewData }: ReviewsTableProps) {
     goToPage,
     nextPage,
     previousPage,
-    changePageSize,
   } = useReviews(timeFilter);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  useEffect(() => {
-    if (reviews && reviews.length > 0) {
-      setReviewData(reviews);
-    }
-  }, [reviews, setReviewData]);
+  // Keep parent state updated with reviews
+  // useEffect(() => {
+  //   setReviewData(reviews);
+  // }, [reviews, setReviewData]);
+
   const columns = [
     columnHelper.accessor("name", {
       header: "User Name",
@@ -107,13 +96,13 @@ export function ReviewsTable({ timeFilter, setReviewData }: ReviewsTableProps) {
       ),
     }),
     columnHelper.accessor("rating", {
-      header: "Reward",
+      header: "Rating",
       cell: (info) => <StarRating rating={info.getValue()} />,
     }),
     columnHelper.accessor("createdAt", {
       header: "Date",
       cell: (info) => (
-        <div>{new Date(info.getValue()).toLocaleDateString()}</div>
+        <div>{new Date(info.getValue()).toLocaleDateString("en-GB")}</div>
       ),
     }),
   ];
@@ -126,18 +115,31 @@ export function ReviewsTable({ timeFilter, setReviewData }: ReviewsTableProps) {
     getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    state: {
-      sorting,
-      columnFilters,
-    },
-    manualPagination: true,
+    state: { sorting, columnFilters },
+    manualPagination: true, // pagination controlled by hook
     pageCount: pagination.totalPages,
   });
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading reviews...</div>
+      <div className="space-y-2 flex flex-col  justify-center items-center">
+        {/* Skeleton for table header */}
+        <div className="flex space-x-4">
+          <Skeleton className="h-6 w-32 rounded-md" />
+          <Skeleton className="h-6 w-32 rounded-md" />
+          <Skeleton className="h-6 w-32 rounded-md" />
+          <Skeleton className="h-6 w-32 rounded-md" />
+        </div>
+
+        {/* Skeleton rows */}
+        {Array.from({ length: 5 }).map((_, idx) => (
+          <div key={idx} className="flex space-x-4 mt-2">
+            <Skeleton className="h-6 w-32 rounded-md" />
+            <Skeleton className="h-6 w-32 rounded-md" />
+            <Skeleton className="h-6 w-32 rounded-md" />
+            <Skeleton className="h-6 w-32 rounded-md" />
+          </div>
+        ))}
       </div>
     );
   }
@@ -149,9 +151,44 @@ export function ReviewsTable({ timeFilter, setReviewData }: ReviewsTableProps) {
       </div>
     );
   }
+  const getVisiblePages = (
+    current: number,
+    total: number,
+    delta = 2
+  ): (number | string)[] => {
+    const pages: (number | string)[] = [];
+    const left = Math.max(2, current - delta);
+    const right = Math.min(total - 1, current + delta);
+
+    // Always include first page
+    pages.push(1);
+
+    // Add left ellipsis if needed
+    if (left > 2) {
+      pages.push("...");
+    }
+
+    // Add middle pages
+    for (let i = left; i <= right; i++) {
+      pages.push(i);
+    }
+
+    // Add right ellipsis if needed
+    if (right < total - 1) {
+      pages.push("...");
+    }
+
+    // Always include last page (if > 1)
+    if (total > 1) {
+      pages.push(total);
+    }
+
+    return pages;
+  };
 
   return (
     <div className="space-y-4">
+      {/* Table */}
       <div className="bg-card rounded-lg border">
         <Table>
           <TableHeader>
@@ -170,8 +207,9 @@ export function ReviewsTable({ timeFilter, setReviewData }: ReviewsTableProps) {
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody className="text-center">
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
@@ -198,83 +236,54 @@ export function ReviewsTable({ timeFilter, setReviewData }: ReviewsTableProps) {
         </Table>
       </div>
 
+      {/* Pagination */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-            {Math.min(
-              pagination.page * pagination.limit,
-              pagination.totalReviews
-            )}{" "}
-            of {pagination.totalReviews} results
-            {timeFilter !== "all" &&
-              ` (filtered from ${reviews.length} total reviews)`}
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+          {Math.min(
+            pagination.page * pagination.limit,
+            pagination.totalReviews
+          )}{" "}
+          of {pagination.totalReviews} results
+        </p>
 
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Rows per page</p>
-            <Select
-              value={pagination.limit.toString()}
-              onValueChange={(value) => changePageSize(Number(value))}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pagination.limit} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={pageSize.toString()}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="flex items-center space-x-1">
+          <Button
+            variant="outline"
+            className="h-8 w-8 p-0 bg-transparent"
+            onClick={previousPage}
+            disabled={pagination.page === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center space-x-1">
+            {getVisiblePages(pagination.page, pagination.totalPages).map(
+              (p, idx) =>
+                p === "..." ? (
+                  <span key={`ellipsis-${idx}`} className="px-2">
+                    ...
+                  </span>
+                ) : (
+                  <Button
+                    key={p}
+                    variant={p === pagination.page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => goToPage(p as number)}
+                  >
+                    {p}
+                  </Button>
+                )
+            )}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">
-              Page {pagination.page} of {pagination.totalPages}
-            </p>
-            <div className="flex items-center space-x-1">
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 bg-transparent"
-                onClick={() => goToPage(1)}
-                disabled={pagination.page === 1}
-              >
-                <span className="sr-only">Go to first page</span>
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 bg-transparent"
-                onClick={previousPage}
-                disabled={pagination.page === 1}
-              >
-                <span className="sr-only">Go to previous page</span>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 bg-transparent"
-                onClick={nextPage}
-                disabled={pagination.page === pagination.totalPages}
-              >
-                <span className="sr-only">Go to next page</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 bg-transparent"
-                onClick={() => goToPage(pagination.totalPages)}
-                disabled={pagination.page === pagination.totalPages}
-              >
-                <span className="sr-only">Go to last page</span>
-                <ChevronsRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <Button
+            variant="outline"
+            className="h-8 w-8 p-0 bg-transparent"
+            onClick={nextPage}
+            disabled={pagination.page === pagination.totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>
