@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -51,7 +51,7 @@ interface ReviewsTableProps {
   setReviewData: React.Dispatch<React.SetStateAction<Review[]>>;
 }
 
-export function ReviewsTable({ timeFilter, setReviewData }: ReviewsTableProps) {
+export function ReviewsTable({ timeFilter, }: ReviewsTableProps) {
   const {
     reviews,
     loading,

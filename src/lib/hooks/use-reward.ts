@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createRewardApi, rewardsdata } from "../api";
-import type { PaginationParams, Reward } from "@/types/types";
+import type { Reward } from "@/types/types";
 import { useState } from "react";
 
 interface RewardsPaginationMeta {
