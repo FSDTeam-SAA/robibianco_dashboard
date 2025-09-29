@@ -1,8 +1,9 @@
 "use client";
 
-import { PaginationParams, Reward } from "@/types/types";
-import { useState, useEffect, useCallback } from "react";
-import { createRewardApi, rewardsdata} from "../api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { createRewardApi, rewardsdata } from "../api";
+import type { PaginationParams, Reward } from "@/types/types";
+import { useState } from "react";
 
 interface RewardsPaginationMeta {
   page: number;
@@ -10,6 +11,24 @@ interface RewardsPaginationMeta {
   totalRewards: number;
   totalPages: number;
 }
+interface RewardApi {
+  _id: string;
+  rewardName: string;
+  description: string;
+  couponCode: string;
+  stock: number;
+  stockLimit: number;
+  expiryDays: number;
+  requiresReview: boolean;
+  createdAt: string;
+  updatedAt: string;
+  spinResult?: Reward["spinResult"];
+  rating?: number;
+  comment?: string;
+  prizeCode?: string;
+  rewardClaimedStatus?: string;
+}
+
 
 interface UseRewardsOptions {
   initialPage?: number;
@@ -18,10 +37,9 @@ interface UseRewardsOptions {
 
 export function useRewards(options: UseRewardsOptions = {}) {
   const { initialPage = 1, initialLimit = 10 } = options;
+  const queryClient = useQueryClient();
 
-  const [rewards, setRewards] = useState<Reward[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Query state
   const [pagination, setPagination] = useState<RewardsPaginationMeta>({
     page: initialPage,
     limit: initialLimit,
@@ -29,14 +47,13 @@ export function useRewards(options: UseRewardsOptions = {}) {
     totalPages: 1,
   });
 
-  const fetchRewardsData = useCallback(async (params: PaginationParams) => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Rewards query with pagination
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["rewards", pagination.page, pagination.limit],
+    queryFn: async () => {
+      const response = await rewardsdata(pagination.page, pagination.limit);
 
-      const response = await rewardsdata(pagination.page);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mappedRewards: Reward[] = response.data.rewards.map((r: any) => ({
+      const mappedRewards: Reward[] = response.data.rewards.map((r: RewardApi) => ({
         id: r._id,
         rewardName: r.rewardName,
         description: r.description,
@@ -50,143 +67,45 @@ export function useRewards(options: UseRewardsOptions = {}) {
         updatedAt: new Date(r.updatedAt),
       }));
 
-      setRewards(mappedRewards);
-      setPagination({
-        page: response.data.page,
-        limit: response.data.limit,
-        totalRewards: response.data.totalRewards,
-        totalPages: response.data.totalPages,
-      });
-    } catch (err) {
-      console.error("Failed to fetch rewards:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch rewards");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const goToPage = useCallback((page: number) => {
-    setPagination((prev) => ({ ...prev, page }));
-  }, []);
-
-  const nextPage = useCallback(() => {
-    setPagination((prev) =>
-      prev.page < prev.totalPages ? { ...prev, page: prev.page + 1 } : prev
-    );
-  }, []);
-
-  const previousPage = useCallback(() => {
-    setPagination((prev) =>
-      prev.page > 1 ? { ...prev, page: prev.page - 1 } : prev
-    );
-  }, []);
-
-  const changePageSize = useCallback((limit: number) => {
-    setPagination((prev) => ({ ...prev, limit, page: 1 }));
-  }, []);
-
-  const createReward = useCallback(
-    async (rewardData: {
-      rewardName: string;
-      description: string;
-      couponCode: string;
-      stockLimit: number;
-      expiryDays: number;
-      requireReview?: boolean;
-    }) => {
-      try {
-        setLoading(true);
-        await createRewardApi(rewardData);
-        // Refresh current page after creation
-        await fetchRewardsData({
-          page: pagination.page,
-          limit: pagination.limit,
-          searchQuery: "",
-        });
-      } catch (err) {
-        console.error("Failed to create reward:", err);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
+      return {
+        rewards: mappedRewards,
+        pagination: {
+          page: response.data.page,
+          limit: response.data.limit,
+          totalRewards: response.data.totalRewards,
+          totalPages: response.data.totalPages,
+        },
+      };
     },
-    [fetchRewardsData, pagination.page, pagination.limit]
-  );
 
-  // const updateRewardById = useCallback(
-  //   async (id: string, rewardData: Partial<CreateRewardPayload>) => {
-  //     try {
-  //       setLoading(true);
-  //       await updateReward(id, rewardData);
-  //       // Refresh current page after update
-  //       await fetchRewardsData({
-  //         page: pagination.page,
-  //         limit: pagination.limit,
-  //       });
-  //     } catch (err) {
-  //       console.error("Failed to update reward:", err);
-  //       throw err;
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   },
-  //   [fetchRewardsData, pagination.page, pagination.limit]
-  // );
+  });
 
-  // const deleteRewardById = useCallback(
-  //   async (id: string) => {
-  //     try {
-  //       setLoading(true);
-  //       await deleteReward(id);
-  //       // Refresh current page after deletion
-  //       await fetchRewardsData({
-  //         page: pagination.page,
-  //         limit: pagination.limit,
-  //       });
-  //     } catch (err) {
-  //       console.error("Failed to delete reward:", err);
-  //       throw err;
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   },
-  //   [fetchRewardsData, pagination.page, pagination.limit]
-  // );
+  // Mutation for creating a reward
+  const createReward = useMutation({
+    mutationFn: createRewardApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rewards"] });
+    },
+  });
 
-  const refresh = useCallback(() => {
-    fetchRewardsData({
-      page: pagination.page,
-      limit: pagination.limit,
-      searchQuery: "",
-    });
-  }, [fetchRewardsData, pagination.page, pagination.limit]);
+  // Pagination handlers
+  const goToPage = (page: number) => {
+    setPagination((prev) => ({ ...prev, page }));
+  };
 
-  useEffect(() => {
-    fetchRewardsData({
-      page: pagination.page,
-      limit: pagination.limit,
-      searchQuery: "",
-    });
-  }, [fetchRewardsData, pagination.page, pagination.limit]);
+  const changePageSize = (limit: number) => {
+    setPagination((prev) => ({ ...prev, limit, page: 1 }));
+  };
 
   return {
-    rewards,
-    loading,
-    error,
-    pagination,
-    // Pagination controls
+    rewards: data?.rewards ?? [],
+    pagination: data?.pagination ?? pagination,
+    loading: isLoading,
+    error: isError ? (error as Error).message : null,
+
     goToPage,
-    nextPage,
-    previousPage,
     changePageSize,
-    // CRUD operations
-    createReward,
-    // updateReward: updateRewardById,
-    // deleteReward: deleteRewardById,
-    refresh,
+    createReward: createReward.mutateAsync,
+    refresh: refetch,
   };
 }
-
-
-// Assuming you have these types defined
- 

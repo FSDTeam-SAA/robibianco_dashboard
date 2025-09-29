@@ -35,7 +35,7 @@ export function RewardsContent() {
     loading,
     pagination,
     goToPage,
-    changePageSize,
+    // changePageSize,
     createReward,
     refresh,
   } = useRewards();
@@ -127,7 +127,7 @@ export function RewardsContent() {
         loading={loading}
         pagination={pagination}
         onPageChange={goToPage}
-        onPageSizeChange={changePageSize}
+        // onPageSizeChange={changePageSize}
         onEditReward={handleEditReward}
         onDeleteReward={(id) => setDeleteId(id)}
       />
