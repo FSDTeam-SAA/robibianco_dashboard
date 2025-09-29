@@ -104,10 +104,11 @@ import type {
 } from "@/types/types";
 
 export async function fetchReviews(
-  params: PaginationParams = {
+  params: PaginationParams & { timeFilter?: string } = {
     page: 1,
     limit: 10,
     searchQuery: "",
+    timeFilter: "all",
   }
 ): Promise<ReviewsApiResponse> {
   const searchParams = new URLSearchParams({
@@ -116,12 +117,24 @@ export async function fetchReviews(
     limit: params.limit.toString(),
   });
 
+  // Add timeFilter to query params if it's provided and not "all"
+  if (params.timeFilter && params.timeFilter !== "all") {
+    searchParams.append("timeFilter", params.timeFilter);
+  }
+
   const response = await apiBase.get(`/admin/reviews?${searchParams}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
   });
+
+//   if (!response.ok) {
+//     throw new Error(`Failed to fetch reviews: ${response.status}`);
+//   }
+
+//   return response.json();
+// }
   
   // if (!response.ok) {
   //   throw new Error(`HTTP error! status: ${response.status}`)

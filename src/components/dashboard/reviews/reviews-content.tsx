@@ -10,62 +10,62 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Review } from "@/types/types";
+import { useReviews } from "@/lib/hooks/use-reviews";
 
 export function ReviewsContent() {
   const [timeFilter, setTimeFilter] = useState<string>("all");
-  const [reviewData, setReviewData] = useState<Review[]>([]);
+  const { reviews } = useReviews(timeFilter);
 
   const handleFilterSelect = (filter: string) => {
     setTimeFilter(filter);
   };
-  console.log('rewview data',reviewData)
 
-  // ✅ Export to CSV function
+  // Export CSV
   const handleExportCSV = () => {
-    if (!reviewData || reviewData.length === 0) {
-      alert("No data available to export");
-      return;
-    }
+    if (!reviews || reviews.length === 0) return alert("No data to export");
 
-    // CSV Header
     const headers = [
       "Name",
-      "Email",
+      "Email", 
       "Phone",
       "Rating",
       "Comment",
-      "Prize Code",
+      "Prize Code", 
       "Reward Status",
       "Created At",
     ];
 
-    // CSV Rows
-    const rows = reviewData.map((item) => [
-      item.name,
-      item.email,
-      item.phone,
-      item.rating,
-      item.comment,
-      item.prizeCode,
-      item.rewardClaimedStatus,
-      new Date(item.createdAt).toLocaleString(),
+    const rows = reviews.map((r) => [
+      r.name || "",
+      r.email || "",
+      r.phone || "",
+      r.rating?.toString() || "",
+      `"${(r.comment || "").replace(/"/g, '""')}"`,
+      r.prizeCode || "",
+      r.rewardClaimedStatus || "",
+      new Date(r.createdAt).toLocaleString(),
     ]);
 
-    // Join CSV
     const csvContent = [headers, ...rows].map((e) => e.join(",")).join("\n");
-
-    // Create Blob
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-
-    // Trigger download
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "reviews_export.csv");
+    link.setAttribute("download", `reviews-${timeFilter}-${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const getFilterLabel = (filter: string) => {
+    const labels: { [key: string]: string } = {
+      all: "All Time",
+      daily: "Today", 
+      weekly: "Last Week",
+      monthly: "Last Month",
+    };
+    return labels[filter] || filter;
   };
 
   return (
@@ -80,7 +80,7 @@ export function ReviewsContent() {
                 className="flex items-center space-x-2 bg-transparent"
               >
                 <Filter className="h-4 w-4" />
-                <span>{timeFilter}</span>
+                <span>{getFilterLabel(timeFilter)}</span>
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -103,6 +103,7 @@ export function ReviewsContent() {
             onClick={handleExportCSV}
             variant="outline"
             className="flex items-center space-x-2 bg-[#6366f1] text-white hover:bg-[#6366f1]/90 cursor-pointer"
+            disabled={!reviews || reviews.length === 0}
           >
             <Download className="h-4 w-4" />
             <span>Export as .csv</span>
@@ -110,7 +111,7 @@ export function ReviewsContent() {
         </div>
       </div>
 
-      <ReviewsTable timeFilter={timeFilter} setReviewData={setReviewData} />
+      <ReviewsTable timeFilter={timeFilter} />
     </div>
   );
 }
