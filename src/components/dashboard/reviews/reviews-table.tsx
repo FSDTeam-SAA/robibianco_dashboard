@@ -51,7 +51,7 @@ interface ReviewsTableProps {
   setReviewData: React.Dispatch<React.SetStateAction<Review[]>>;
 }
 
-export function ReviewsTable({ timeFilter, }: ReviewsTableProps) {
+export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
   const {
     reviews,
     loading,
@@ -266,7 +266,11 @@ export function ReviewsTable({ timeFilter, }: ReviewsTableProps) {
                 ) : (
                   <Button
                     key={p}
-                    variant={p === pagination.page ? "default" : "outline"}
+                    className={
+                      p === pagination.page 
+                        ? "bg-[#6366F1] text-black border-black cursor-pointer hover:bg-[#6366F1]"
+                        : "bg-white text-black border-black hover:bg-gray-100 cursor-pointer"
+                    }
                     size="sm"
                     onClick={() => goToPage(p as number)}
                   >
