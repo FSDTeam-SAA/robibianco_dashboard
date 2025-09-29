@@ -256,7 +256,7 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="flex items-center space-x-1">
+         <div className="flex items-center space-x-1">
             {getVisiblePages(pagination.page, pagination.totalPages).map(
               (p, idx) =>
                 p === "..." ? (
@@ -267,7 +267,7 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
                   <Button
                     key={p}
                     className={
-                      p === pagination.page 
+                      p === pagination.page
                         ? "bg-[#6366F1] text-black border-black cursor-pointer hover:bg-[#6366F1]"
                         : "bg-white text-black border-black hover:bg-gray-100 cursor-pointer"
                     }
@@ -279,6 +279,7 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
                 )
             )}
           </div>
+
 
           <Button
             variant="outline"

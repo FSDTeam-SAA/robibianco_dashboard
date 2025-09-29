@@ -19,6 +19,7 @@ export function ReviewsContent() {
   const handleFilterSelect = (filter: string) => {
     setTimeFilter(filter);
   };
+  console.log('rewview data',reviewData)
 
   // ✅ Export to CSV function
   const handleExportCSV = () => {
