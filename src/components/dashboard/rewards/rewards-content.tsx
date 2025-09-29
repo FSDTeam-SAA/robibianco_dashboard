@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { RewardsTable } from "./rewards-table";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { updateReward } from "@/lib/api";
+// import { updateReward } from "@/lib/api";
 
 export function RewardsContent() {
   const session = useSession();
@@ -27,6 +29,7 @@ export function RewardsContent() {
   // Delete modal state
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+
   const {
     rewards,
     loading,
@@ -34,6 +37,7 @@ export function RewardsContent() {
     goToPage,
     changePageSize,
     createReward,
+    refresh,
   } = useRewards();
 
   const handleCreateReward = () => {
@@ -44,21 +48,40 @@ export function RewardsContent() {
   const handleEditReward = (reward: Reward) => {
     setEditingReward(reward);
     setIsFormOpen(true);
+    // console.log("This is edit", reward);
   };
 
   const handleFormSubmit = async (data: RewardFormData) => {
     try {
-      await createReward({
-        rewardName: data.rewardName,
-        description: data.description,
-        couponCode: data.couponCode,
-        stockLimit: data.stockLimit,
-        expiryDays: data.expiry,
-        requireReview: data.requireReview,
-      });
-      toast.success("Reward created successfully");
-      setIsFormOpen(false);
-      setEditingReward(null);
+      if (!editingReward) {
+        await createReward({
+          rewardName: data.rewardName,
+          description: data.description,
+          couponCode: data.couponCode,
+          stockLimit: data.stockLimit,
+          expiryDays: data.expiry,
+          requireReview: data.requireReview,
+        });
+        toast.success("Reward created successfully");
+        setIsFormOpen(false);
+        setEditingReward(null);
+        // Refetch the latest rewards
+        refresh();
+      } else {
+        // Updating existing reward
+        await updateReward(editingReward.id, {
+          rewardName: data.rewardName,
+          description: data.description,
+          couponCode: data.couponCode,
+          stockLimit: data.stockLimit,
+          expiryDays: data.expiry,
+        });
+        toast.success("Reward updated successfully");
+        setIsFormOpen(false);
+        setEditingReward(null);
+        // Refresh the page
+        refresh();
+      }
     } catch (err) {
       console.error("Failed to save reward:", err);
       toast.error("Failed to save reward");
@@ -82,7 +105,7 @@ export function RewardsContent() {
       console.error("Failed to delete reward:", err);
       toast.error("Failed to delete reward");
     } finally {
-      setDeleteId(null); // close modal
+      setDeleteId(null);  
     }
   };
 
@@ -106,7 +129,7 @@ export function RewardsContent() {
         onPageChange={goToPage}
         onPageSizeChange={changePageSize}
         onEditReward={handleEditReward}
-        onDeleteReward={(id) => setDeleteId(id)}  
+        onDeleteReward={(id) => setDeleteId(id)}
       />
 
       {/* Create / Edit Reward Form Modal */}
@@ -148,7 +171,11 @@ export function RewardsContent() {
           </DialogHeader>
           <p>Are you sure you want to delete this reward?</p>
           <DialogFooter className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteId(null)} className="cursor-pointer">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteId(null)}
+              className="cursor-pointer"
+            >
               Cancel
             </Button>
             <Button

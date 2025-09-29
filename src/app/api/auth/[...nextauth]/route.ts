@@ -41,7 +41,7 @@ const handler = NextAuth({
           let data;
           try {
             data = JSON.parse(responseText);
-            console.log('📊 Parsed response data:', data);
+            // console.log('📊 Parsed response data:', data);
           } catch {
             console.error('❌ Failed to parse JSON response');
             return null;
@@ -61,7 +61,7 @@ const handler = NextAuth({
             return null;
           }
 
-          console.log('✅ Login successful, user data:', userData);
+          // console.log('✅ Login successful, user data:', userData);
 
           // Map your backend response to NextAuth user object
           return {
