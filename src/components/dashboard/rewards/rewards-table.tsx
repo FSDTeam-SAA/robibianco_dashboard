@@ -1,32 +1,53 @@
-"use client"
+"use client";
 
-import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Edit, MoreHorizontal,  Trash2 } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  createColumnHelper,
+} from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  MoreHorizontal,
+  Trash2,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Reward } from "@/types/types";
 
-import type { Reward } from "@/types/types"
-
-const columnHelper = createColumnHelper<Reward>()
+const columnHelper = createColumnHelper<Reward>();
 
 interface RewardsPaginationMeta {
-  page: number
-  limit: number
-  totalRewards: number
-  totalPages: number
+  page: number;
+  limit: number;
+  totalRewards: number;
+  totalPages: number;
 }
 
 interface RewardsTableProps {
-  rewards: Reward[]
-  loading: boolean
-  pagination: RewardsPaginationMeta
-  onPageChange: (page: number) => void
-  onPageSizeChange: (pageSize: number) => void
-  onEditReward: (reward: Reward) => void
-  onDeleteReward: (id: string) => void
+  rewards: Reward[];
+  loading: boolean;
+  pagination: RewardsPaginationMeta;
+  onPageChange: (page: number) => void;
+  onEditReward: (reward: Reward) => void;
+  onDeleteReward: (id: string) => void;
 }
 
 export function RewardsTable({
@@ -34,7 +55,6 @@ export function RewardsTable({
   loading,
   pagination,
   onPageChange,
-  onPageSizeChange,
   onEditReward,
   onDeleteReward,
 }: RewardsTableProps) {
@@ -47,17 +67,17 @@ export function RewardsTable({
     columnHelper.accessor("stock", {
       header: "Stock",
       cell: (info) => {
-        const stock = info.getValue()
-        const maxStock = info.row.original.maxStock
-        const percentage = (stock / maxStock) * 100
+        const stock = info.getValue();
+        const maxStock = info.row.original.maxStock;
+        const percentage = (stock / maxStock) * 100;
         return (
           <div className="space-y-2 min-w-[120px]">
             <div className="text-sm font-medium ">
               {stock} / {maxStock}
             </div>
-            <Progress value={percentage} className="h-2 " />
+            <Progress value={percentage} className="h-2" />
           </div>
-        )
+        );
       },
     }),
     columnHelper.display({
@@ -70,38 +90,96 @@ export function RewardsTable({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEditReward(info.row.original)} className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => onEditReward(info.row.original)}
+              className="cursor-pointer"
+            >
               <Edit className="mr-2 h-4 w-4 cursor-pointer" /> Edit
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => onDeleteReward(info.row.original.id)}>
+            <DropdownMenuItem
+              className="text-destructive cursor-pointer"
+              onClick={() => onDeleteReward(info.row.original.id)}
+            >
               <Trash2 className="mr-2 h-4 w-4 cursor-pointer" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
     }),
-  ]
+  ];
 
   const table = useReactTable({
     data: rewards,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Loading rewards...</div>
+    return (
+      <div className="space-y-2 flex flex-col  justify-center items-center">
+        {/* Skeleton for table header */}
+        <div className="flex space-x-4">
+          <Skeleton className="h-6 w-32 rounded-md" />
+          <Skeleton className="h-6 w-32 rounded-md" />
+          <Skeleton className="h-6 w-32 rounded-md" />
+          <Skeleton className="h-6 w-32 rounded-md" />
+        </div>
+
+        {/* Skeleton rows */}
+        {Array.from({ length: 5 }).map((_, idx) => (
+          <div key={idx} className="flex space-x-4 mt-2">
+            <Skeleton className="h-6 w-32 rounded-md" />
+            <Skeleton className="h-6 w-32 rounded-md" />
+            <Skeleton className="h-6 w-32 rounded-md" />
+            <Skeleton className="h-6 w-32 rounded-md" />
+          </div>
+        ))}
+      </div>
+    );
   }
+
+  const getVisiblePages = (
+    current: number,
+    total: number,
+    delta = 2
+  ): (number | string)[] => {
+    const pages: (number | string)[] = [];
+    const left = Math.max(2, current - delta);
+    const right = Math.min(total - 1, current + delta);
+
+    // Always include first page
+    pages.push(1);
+
+    // Left ellipsis
+    if (left > 2) pages.push("...");
+
+    // Middle pages
+    for (let i = left; i <= right; i++) {
+      pages.push(i);
+    }
+
+    // Right ellipsis
+    if (right < total - 1) pages.push("...");
+
+    // Always include last page
+    if (total > 1) pages.push(total);
+
+    return pages;
+  };
 
   return (
     <div className="space-y-4">
       <div className="bg-card rounded-lg border">
         <Table>
-          <TableHeader >
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} >
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id} className="text-center">
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -110,15 +188,23 @@ export function RewardsTable({
           <TableBody className="text-center">
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} >
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="border">{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id} className="border">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No rewards found.
                 </TableCell>
               </TableRow>
@@ -128,66 +214,54 @@ export function RewardsTable({
       </div>
 
       <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+          {Math.min(
+            pagination.page * pagination.limit,
+            pagination.totalRewards
+          )}{" "}
+          of {pagination.totalRewards} results
+        </p>
+
         <div className="flex items-center space-x-2">
-          <p className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-            {Math.min(pagination.page * pagination.limit, pagination.totalRewards)} of {pagination.totalRewards} results
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Rows per page</p>
-            <Select value={pagination.limit.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={pageSize.toString()}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(pagination.page - 1)}
+            disabled={pagination.page === 1}
+          >
+            <ChevronLeft />
+          </Button>
+          <div className="flex items-center space-x-1">
+            {getVisiblePages(pagination.page, pagination.totalPages).map(
+              (p, idx) =>
+                p === "..." ? (
+                  <span key={`ellipsis-${idx}`} className="px-2">
+                    ...
+                  </span>
+                ) : (
+                  <Button
+                    key={p}
+                    variant={p === pagination.page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => onPageChange(p as number)}
+                  >
+                    {p}
+                  </Button>
+                )
+            )}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">
-              Page {pagination.page} of {pagination.totalPages}
-            </p>
-            <div className="flex items-center space-x-1">
-              <Button variant="outline" size="sm" onClick={() => onPageChange(1)} disabled={pagination.page === 1}>
-                First
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(pagination.page - 1)}
-                disabled={pagination.page === 1}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(pagination.page + 1)}
-                disabled={pagination.page === pagination.totalPages}
-              >
-                Next
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(pagination.totalPages)}
-                disabled={pagination.page === pagination.totalPages}
-              >
-                Last
-              </Button>
-            </div>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(pagination.page + 1)}
+            disabled={pagination.page === pagination.totalPages}
+          >
+            <ChevronRight />
+          </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

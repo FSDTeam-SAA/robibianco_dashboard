@@ -73,9 +73,9 @@ export async function review() {
   }
 }
 
-export async function rewardsdata(page: number) {
+export async function rewardsdata(page: number,limit: number) {
   try {
-    const res = await apiBase.get(`/rewards?page=${page}&limit=10`);
+    const res = await apiBase.get(`/rewards?page=${page}&limit=${limit}`);
     return res.data;
   } catch (error) {
     if (error instanceof Error) {
