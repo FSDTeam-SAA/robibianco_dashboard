@@ -2,7 +2,7 @@
 
 import { PaginationParams, Reward } from "@/types/types";
 import { useState, useEffect, useCallback } from "react";
-import { createRewardApi, rewardsdata } from "../api";
+import { createRewardApi, rewardsdata} from "../api";
 
 interface RewardsPaginationMeta {
   page: number;
@@ -101,7 +101,7 @@ export function useRewards(options: UseRewardsOptions = {}) {
         await fetchRewardsData({
           page: pagination.page,
           limit: pagination.limit,
-          searchQuery: ""
+          searchQuery: "",
         });
       } catch (err) {
         console.error("Failed to create reward:", err);
@@ -154,13 +154,18 @@ export function useRewards(options: UseRewardsOptions = {}) {
   // );
 
   const refresh = useCallback(() => {
-    fetchRewardsData({page: pagination.page, limit: pagination.limit,   searchQuery: "" });
+    fetchRewardsData({
+      page: pagination.page,
+      limit: pagination.limit,
+      searchQuery: "",
+    });
   }, [fetchRewardsData, pagination.page, pagination.limit]);
 
   useEffect(() => {
     fetchRewardsData({
-      page: pagination.page, limit: pagination.limit,
-      searchQuery: ""
+      page: pagination.page,
+      limit: pagination.limit,
+      searchQuery: "",
     });
   }, [fetchRewardsData, pagination.page, pagination.limit]);
 
@@ -181,3 +186,7 @@ export function useRewards(options: UseRewardsOptions = {}) {
     refresh,
   };
 }
+
+
+// Assuming you have these types defined
+ 

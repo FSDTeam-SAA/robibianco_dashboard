@@ -75,7 +75,7 @@ const ResetPassword = () => {
       repeatNewPassword: values.confirmPassword // Using confirmPassword as repeatNewPassword
     };
 
-    console.log("Reset data:", resetData);
+    // console.log("Reset data:", resetData);
     
     try {
       await resetPasswordMutation.mutateAsync(resetData);

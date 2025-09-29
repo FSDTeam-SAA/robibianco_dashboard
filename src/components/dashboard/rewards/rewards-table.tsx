@@ -4,7 +4,7 @@ import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
+import { Edit, MoreHorizontal,  Trash2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -65,15 +65,15 @@ export function RewardsTable({
       cell: (info) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEditReward(info.row.original)}>
+            <DropdownMenuItem onClick={() => onEditReward(info.row.original)} className="cursor-pointer">
               <Edit className="mr-2 h-4 w-4 cursor-pointer" /> Edit
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive" onClick={() => onDeleteReward(info.row.original.id)}>
+            <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => onDeleteReward(info.row.original.id)}>
               <Trash2 className="mr-2 h-4 w-4 cursor-pointer" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

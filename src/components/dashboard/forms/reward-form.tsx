@@ -122,7 +122,7 @@ export function RewardForm({
                       Coupon Code <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="3-mfgmmcwv-sm05r" {...field} />
+                      <Input placeholder="DISCOUNT_10%" {...field} />
                     </FormControl>
                     <p className="text-sm text-muted-foreground">
                       Customers will use this code to redeem their reward
