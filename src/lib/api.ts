@@ -104,17 +104,24 @@ import type {
 } from "@/types/types";
 
 export async function fetchReviews(
-  params: PaginationParams = {
+  params: PaginationParams & { timeFilter?: string } = {
     page: 1,
     limit: 10,
     searchQuery: "",
   }
 ): Promise<ReviewsApiResponse> {
   const searchParams = new URLSearchParams({
-    filter: params.searchQuery,
     page: params.page.toString(),
     limit: params.limit.toString(),
   });
+
+  // Add filter parameter for time filtering
+  if (params.timeFilter && params.timeFilter !== "all") {
+    searchParams.append("filter", params.timeFilter);
+  }
+  // For "all", don't send any filter parameter
+
+  console.log("🔗 Making API call to:", `/admin/reviews?${searchParams.toString()}`);
 
   const response = await apiBase.get(`/admin/reviews?${searchParams}`, {
     method: "GET",
@@ -123,10 +130,6 @@ export async function fetchReviews(
     },
   });
   
-  // if (!response.ok) {
-  //   throw new Error(`HTTP error! status: ${response.status}`)
-  // }
-
   const data = await response.data;
 
   if (!data.success) {

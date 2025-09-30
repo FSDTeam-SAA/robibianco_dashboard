@@ -1,5 +1,6 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useUserById } from "@/lib/hooks/useAllUsers";
 import { useSession } from "next-auth/react";
 
@@ -11,7 +12,18 @@ export function Header() {
     userId as string
   );
 
-  if (loadingSingle) return <header>Loading...</header>;
+  if (loadingSingle) {
+    return (
+      <header className="p-4 flex items-center gap-4">
+        <Skeleton className="h-12 w-12 rounded-full" />
+
+        <div className="flex flex-col space-y-2">
+          <Skeleton className="h-4 w-[150px]" />
+          <Skeleton className="h-4 w-[100px]" />
+        </div>
+      </header>
+    );
+  }
 
   // Access the user object inside singleUser.data
   const user = singleUser?.data?.user;
@@ -33,7 +45,9 @@ export function Header() {
           </Avatar>
           <div className="text-sm">
             <div className="font-medium">{user?.fullName || "No Name"}</div>
-            <div className="text-muted-foreground">{user?.email || "No Email"}</div>
+            <div className="text-muted-foreground">
+              {user?.email || "No Email"}
+            </div>
           </div>
         </div>
       </div>

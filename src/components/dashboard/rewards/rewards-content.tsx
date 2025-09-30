@@ -102,7 +102,7 @@ export function RewardsContent() {
       toast.success("Reward deleted successfully");
       location.reload();
     } catch (err) {
-      console.error("Failed to delete reward:", err);
+      
       toast.error("Failed to delete reward");
     } finally {
       setDeleteId(null);  

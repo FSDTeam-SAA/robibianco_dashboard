@@ -86,6 +86,13 @@ export interface SpinResult {
   couponCode: string;
 }
 
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  searchQuery: string;
+  timeFilter?: string; // Add this
+}
+
 export interface Review {
   _id: string;
   name: string;
@@ -99,6 +106,12 @@ export interface Review {
   createdAt: string;
   updatedAt: string;
   __v: number;
+}
+
+export interface SpinResult {
+  // Add your spin result properties here
+  prize?: string;
+  isWinner?: boolean;
 }
 
 export interface PaginationParams {
