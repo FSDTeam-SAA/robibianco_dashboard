@@ -88,13 +88,13 @@ export function ReviewsContent() {
               <DropdownMenuItem onClick={() => handleFilterSelect("all")}>
                 All Time
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterSelect("daily")}>
+              <DropdownMenuItem onClick={() => handleFilterSelect("today")}>
                 Today
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterSelect("weekly")}>
+              <DropdownMenuItem onClick={() => handleFilterSelect("lastWeek")}>
                 Last Week
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterSelect("monthly")}>
+              <DropdownMenuItem onClick={() => handleFilterSelect("lastMonth")}>
                 Last Month
               </DropdownMenuItem>
             </DropdownMenuContent>
