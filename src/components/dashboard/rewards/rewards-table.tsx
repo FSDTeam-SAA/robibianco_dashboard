@@ -68,14 +68,11 @@ export function RewardsTable({
       header: "Stock",
       cell: (info) => {
         const stock = info.getValue();
-        const maxStock = info.row.original.maxStock;
-        const percentage = (stock / maxStock) * 100;
+
         return (
           <div className="space-y-2 min-w-[120px]">
-            <div className="text-sm font-medium ">
-              {stock} / {maxStock}
-            </div>
-            <Progress value={percentage} className="h-2" />
+            <div className="text-sm font-medium ">{stock}</div>
+            {/* <Progress value={percentage} className="h-2" /> */}
           </div>
         );
       },
@@ -244,12 +241,13 @@ export function RewardsTable({
                     key={p}
                     className={
                       p === pagination.page
-                        ? "bg-[#6366F1] text-black border-black cursor-pointer hover:bg-[#6366F1]"
+                        ? "bg-[#6366F1] text-white border-black cursor-pointer hover:bg-[#6366F1]"
                         : "bg-white text-black border-black hover:bg-gray-100 cursor-pointer"
                     }
                     size="sm"
                     onClick={() => onPageChange(p as number)}
                   >
+                    
                     {p}
                   </Button>
                 )

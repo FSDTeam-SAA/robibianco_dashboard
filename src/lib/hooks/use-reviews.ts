@@ -1,13 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type {
-  Review,
-  PaginationParams,
-  PaginationMeta,
-
-} from "@/types/types";
+import type { Review, PaginationParams, PaginationMeta } from "@/types/types";
 import { fetchReviews } from "@/lib/api";
 
 interface UseReviewsOptions {
@@ -23,14 +18,20 @@ interface ReviewsResponse {
   totalPages: number;
 }
 
-export function useReviews(searchQuery: string, options: UseReviewsOptions = {}) {
+export function useReviews(
+  timeFilter: string = "all",
+  options: UseReviewsOptions = {}
+) {
   const { initialPage = 1, initialLimit = 10 } = options;
 
-  // Local state to control pagination
   const [page, setPage] = useState(initialPage);
   const [limit, setLimit] = useState(initialLimit);
 
-  // Query
+
+  useEffect(() => {
+    setPage(1);
+  }, [timeFilter]);
+
   const {
     data,
     isLoading: loading,
@@ -38,16 +39,23 @@ export function useReviews(searchQuery: string, options: UseReviewsOptions = {})
     error,
     refetch,
   } = useQuery<ReviewsResponse>({
-    queryKey: ["reviews", searchQuery, page, limit],
+    queryKey: ["reviews", timeFilter, page, limit],
     queryFn: async () => {
-      const params: PaginationParams = { searchQuery, page, limit };
+      const params: PaginationParams & { timeFilter?: string } = {
+        searchQuery: "",
+        page,
+        limit,
+        timeFilter: timeFilter, 
+      };
+
+    
+
       const response = await fetchReviews(params);
       return response.data;
     },
-   
+    staleTime: 1000 * 60 * 5,
   });
 
-  // Build pagination meta from query response
   const pagination: PaginationMeta = {
     page: data?.page ?? page,
     limit: data?.limit ?? limit,
@@ -55,35 +63,30 @@ export function useReviews(searchQuery: string, options: UseReviewsOptions = {})
     totalPages: data?.totalPages ?? 0,
   };
 
-  // Pagination handlers
   const goToPage = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       setPage(newPage);
     }
   };
 
-  const changePageSize = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(1); // reset to first page
-  };
-
   const nextPage = () => {
-    if (pagination.page < pagination.totalPages) {
-      setPage((prev) => prev + 1);
-    }
+    if (pagination.page < pagination.totalPages) setPage((prev) => prev + 1);
   };
 
   const previousPage = () => {
-    if (pagination.page > 1) {
-      setPage((prev) => prev - 1);
-    }
+    if (pagination.page > 1) setPage((prev) => prev - 1);
+  };
+
+  const changePageSize = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1);
   };
 
   return {
     reviews: data?.reviews ?? [],
     pagination,
     loading,
-    error: isError ? (error as Error).message : null,
+    error: isError ? (error as Error)?.message ?? "An error occurred" : null,
     refetch,
     goToPage,
     nextPage,
