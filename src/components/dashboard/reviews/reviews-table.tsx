@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import {  useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -19,8 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react";
 import { useReviews } from "@/lib/hooks/use-reviews";
 import type { Review } from "@/types/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -45,20 +45,8 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-interface ReviewsTableProps {
-  timeFilter: string;
-}
-
-export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
-  const {
-    reviews,
-    loading,
-    error,
-    pagination,
-    goToPage,
-    nextPage,
-    previousPage,
-  } = useReviews(timeFilter);
+export function ReviewsTable() {
+  const { reviews, loading, error } = useReviews();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -67,40 +55,35 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
     columnHelper.accessor("author_name", {
       header: "User Name",
       cell: (info) => {
-        // get the full row data so we can also use profile_photo_url
         const row = info.row.original;
+        // const ago = info.row.original;
         return (
-          <div className="flex items-center gap-3">
-            <Image
-              src={row?.profile_photo_url || ""}
-              alt={info.getValue()}
-              width={100}
-              height={100}
-              className="w-8 h-8 rounded-full object-cover border"
-            />
-            <span className="font-medium">{info.getValue() || "N/A"}</span>
+          <div className="flex flex-col items-start">
+            <div className="flex items-center gap-3">
+              <Image
+                src={row?.profile_photo_url || ""}
+                alt={info.getValue()}
+                width={100}
+                height={100}
+                className="w-8 h-8 rounded-full object-cover border"
+              />
+              <div className="flex flex-col items-start">
+                <span className="font-medium">{info.getValue() || "N/A"}</span>
+                <div className="text-muted-foreground">
+                  {row.relative_time_description || "N/A"}
+                </div>
+              </div>
+            </div>
           </div>
         );
       },
-    }),
-
-    columnHelper.accessor("relative_time_description", {
-      header: "How many time ago",
-      cell: (info) => (
-        <div className="text-muted-foreground">{info.getValue() || "N/A"}</div>
-      ),
-    }),
-
-    columnHelper.accessor("phone", {
-      header: "Contact Number",
-      cell: (info) => <div>{info.getValue() || "N/A"}</div>,
     }),
 
     columnHelper.accessor("text", {
       header: "Comment",
       cell: (info) => (
         <div className="max-w-xs">
-          <p className="text-sm text-muted-foreground py-2 line-clamp-2">
+          <p className="text-sm text-muted-foreground  py-2 line-clamp-2 ">
             {info.getValue() || "No comment"}
           </p>
         </div>
@@ -125,7 +108,6 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
   ];
 
   // Normalize reviews into an array of Review before passing to react-table.
-  // `reviews` may be an array or an object response (e.g. { reviews: Review[] } or { data: Review[] }).
   const tableData: Review[] = Array.isArray(reviews)
     ? reviews
     : (() => {
@@ -143,6 +125,65 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
         return [];
       })();
 
+  // const totalItems = tableData.length;
+  // const totalPages = Math.ceil(totalItems / perPage);
+
+  // const currentPageData = useMemo(() => {
+  //   const startIndex = (currentPage - 1) * perPage;
+  //   const endIndex = startIndex + perPage;
+  //   return tableData.slice(startIndex, endIndex);
+  // }, [tableData, currentPage, perPage]);
+
+  // const goToPage = (page: number) => {
+  //   setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  // };
+
+  // const nextPage = () => {
+  //   if (currentPage < totalPages) {
+  //     setCurrentPage(currentPage + 1);
+  //   }
+  // };
+
+  // const previousPage = () => {
+  //   if (currentPage > 1) {
+  //     setCurrentPage(currentPage - 1);
+  //   }
+  // };
+
+  // // Fixed pagination rendering function
+  // const renderPagination = () => {
+  //   const pages: (number | string)[] = [];
+
+  //   // Show first page always
+  //   pages.push(1);
+
+  //   // Determine the range of pages to show
+  //   let startPage = Math.max(2, currentPage - 1);
+  //   let endPage = Math.min(totalPages - 1, currentPage + 1);
+
+  //   // Add ellipsis after first page if needed
+  //   if (startPage > 2) {
+  //     pages.push("...");
+  //   }
+
+  //   // Add pages in range
+  //   for (let i = startPage; i <= endPage; i++) {
+  //     pages.push(i);
+  //   }
+
+  //   // Add ellipsis before last page if needed
+  //   if (endPage < totalPages - 1) {
+  //     pages.push("...");
+  //   }
+
+  //   // Show last page (if more than 1 page total and not already included)
+  //   if (totalPages > 1 && !pages.includes(totalPages)) {
+  //     pages.push(totalPages);
+  //   }
+
+  //   return pages;
+  // };
+
   const table = useReactTable({
     data: tableData,
     columns,
@@ -153,51 +194,7 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
     onColumnFiltersChange: setColumnFilters,
     state: { sorting, columnFilters },
     manualPagination: true,
-    pageCount: pagination.totalPages,
   });
-
-  // Pagination with adjacent pages visible
-  const renderPagination = () => {
-    const pages: (number | string)[] = [];
-    const currentPage = Number(pagination.page);
-    const totalPages = Number(pagination.totalPages);
-
-    // Show first page
-    pages.push(1);
-
-    // Determine the range of pages to show
-    let startPage = Math.max(2, currentPage - 2);
-    let endPage = Math.min(totalPages - 1, currentPage + 2);
-
-    // Adjust range to always show 5 pages (or less if total is small)
-    if (currentPage <= 3) {
-      endPage = Math.min(5, totalPages - 1);
-    } else if (currentPage >= totalPages - 2) {
-      startPage = Math.max(2, totalPages - 4);
-    }
-
-    // Add ellipsis after first page if needed
-    if (startPage > 2) {
-      pages.push("...");
-    }
-
-    // Add pages in range
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    // Add ellipsis before last page if needed
-    if (endPage < totalPages - 1) {
-      pages.push("...");
-    }
-
-    // Show last page (if more than 1 page total)
-    if (totalPages > 1) {
-      pages.push(totalPages);
-    }
-
-    return pages;
-  };
 
   if (loading) {
     return (
@@ -288,16 +285,16 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
       </div>
 
       {/* Pagination */}
-      {pagination.totalPages > 0 && (
+      {/* {totalPages > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             Showing{" "}
-            {(Number(pagination.page) - 1) * Number(pagination.limit) + 1} to{" "}
+            {(currentPage - 1) * perPage + 1} to{" "}
             {Math.min(
-              Number(pagination.page) * Number(pagination.limit),
-              Number(pagination.totalReviews)
+              currentPage * perPage,
+              totalItems
             )}{" "}
-            of {pagination.totalReviews} results
+            of {totalItems} results
           </p>
 
           <div className="flex items-center space-x-1">
@@ -305,7 +302,7 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
               variant="outline"
               className="h-8 w-8 p-0"
               onClick={previousPage}
-              disabled={Number(pagination.page) === 1}
+              disabled={currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -324,7 +321,7 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
               }
 
               // Handle page numbers
-              const isActive = p === Number(pagination.page);
+              const isActive = p === currentPage;
               return (
                 <Button
                   key={`page-${p}`}
@@ -346,15 +343,13 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
               variant="outline"
               className="h-8 w-8 p-0"
               onClick={nextPage}
-              disabled={
-                Number(pagination.page) === Number(pagination.totalPages)
-              }
+              disabled={currentPage === totalPages}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
