@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -19,10 +20,13 @@ export function ReviewsContent() {
   const handleFilterSelect = (filter: string) => {
     setTimeFilter(filter);
   };
+  console.log('revihkjkjkj',reviews)
 
   // Export CSV
   const handleExportCSV = () => {
-    if (!reviews || reviews.length === 0) return alert("No data to export");
+    if (!reviews || !Array.isArray(reviews) || reviews.length === 0) {
+      return alert("No data to export");
+    }
 
     const headers = [
       "Name",
@@ -35,7 +39,7 @@ export function ReviewsContent() {
       "Created At",
     ];
 
-    const rows = reviews.map((r) => [
+    const rows = (reviews as any[]).map((r: any) => [
       r.name || "",
       r.email || "",
       r.phone || "",
@@ -103,7 +107,7 @@ export function ReviewsContent() {
             onClick={handleExportCSV}
             variant="outline"
             className="flex items-center space-x-2 bg-[#6366f1] text-white hover:bg-[#6366f1]/90 cursor-pointer"
-            disabled={!reviews || reviews.length === 0}
+            disabled={Array.isArray(reviews) ? reviews.length === 0 : true}
           >
             <Download className="h-4 w-4" />
             <span>Export as .csv</span>

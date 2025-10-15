@@ -4,7 +4,7 @@ export interface Reward {
   rewardName: string;
   description: string;
   couponCode: string;
-   expiry: number;
+  expiry: number;
   date: string;
   stock: number;
   maxStock: number;
@@ -21,9 +21,7 @@ export interface Reward {
   comment: string;
   prizeCode: string;
   rewardClaimedStatus: string;
-
 }
-
 
 // In your types file (e.g., lib/types.ts)
 // In @/types/types.ts
@@ -95,17 +93,27 @@ export interface PaginationParams {
 
 export interface Review {
   _id: string;
-  name: string;
-  email: string;
+  author_name: string;
+  relative_time_description: string;
   phone: string;
   rating: number;
-  comment: string;
+  text: string;
   spinResult: SpinResult;
   prizeCode: string | null;
   rewardClaimedStatus: "pending" | "claimed" | "not_eligible";
   createdAt: string;
-  updatedAt: string;
+  time: string;
   __v: number;
+  // types/types.ts
+  // author_name: string;
+  author_url?: string;
+  profile_photo_url?: string;
+  // rating: number;
+  // relative_time_description: string;
+  // text?: string;
+  // time: number;
+  translated?: boolean;
+  length:number
 }
 
 export interface SpinResult {
