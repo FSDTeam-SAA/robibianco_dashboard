@@ -19,7 +19,7 @@ interface ReviewsResponse {
 }
 
 export function useReviews(
-  timeFilter: string = "all",
+ 
   options: UseReviewsOptions = {}
 ) {
   const { initialPage = 1, initialLimit = 10 } = options;
@@ -30,7 +30,7 @@ export function useReviews(
 
   useEffect(() => {
     setPage(1);
-  }, [timeFilter]);
+  }, []);
 
   const {
     data,
@@ -39,13 +39,13 @@ export function useReviews(
     error,
     refetch,
   } = useQuery<ReviewsResponse>({
-    queryKey: ["reviews", timeFilter, page, limit],
+    queryKey: ["reviews", page, limit],
     queryFn: async () => {
       const params: PaginationParams & { timeFilter?: string } = {
         searchQuery: "",
         page,
         limit,
-        timeFilter: timeFilter, 
+       
       };
 
     
