@@ -51,6 +51,7 @@ export function useReviews(
     
 
       const response = await fetchReviews(params);
+      console.log('hjkl;',response)
       return response.data;
     },
     staleTime: 1000 * 60 * 5,
@@ -83,7 +84,7 @@ export function useReviews(
   };
 
   return {
-    reviews: data?.reviews ?? [],
+    reviews: data ?? [],
     pagination,
     loading,
     error: isError ? (error as Error)?.message ?? "An error occurred" : null,
