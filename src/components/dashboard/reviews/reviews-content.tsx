@@ -1,4 +1,3 @@
-
 "use client";
 
 // import { Button } from "@/components/ui/button";
@@ -78,7 +77,8 @@ export function ReviewsContent() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Review Management</h1>
+        <h1 className="text-2xl font-semibold">Latest 5 Reviews</h1>
+
         {/* <div className="flex items-center space-x-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
