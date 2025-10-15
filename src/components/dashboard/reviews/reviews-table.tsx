@@ -24,6 +24,7 @@ import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useReviews } from "@/lib/hooks/use-reviews";
 import type { Review } from "@/types/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
 const columnHelper = createColumnHelper<Review>();
 
@@ -63,23 +64,39 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const columns = [
-    columnHelper.accessor("name", {
+    columnHelper.accessor("author_name", {
       header: "User Name",
-      cell: (info) => (
-        <div className="font-medium">{info.getValue() || "N/A"}</div>
-      ),
+      cell: (info) => {
+        // get the full row data so we can also use profile_photo_url
+        const row = info.row.original;
+        return (
+          <div className="flex items-center gap-3">
+            <Image
+              src={row?.profile_photo_url || ""}
+              alt={info.getValue()}
+              width={100}
+              height={100}
+              className="w-8 h-8 rounded-full object-cover border"
+            />
+            <span className="font-medium">{info.getValue() || "N/A"}</span>
+          </div>
+        );
+      },
     }),
-    columnHelper.accessor("email", {
-      header: "User Email",
+
+    columnHelper.accessor("relative_time_description", {
+      header: "How many time ago",
       cell: (info) => (
         <div className="text-muted-foreground">{info.getValue() || "N/A"}</div>
       ),
     }),
+
     columnHelper.accessor("phone", {
       header: "Contact Number",
       cell: (info) => <div>{info.getValue() || "N/A"}</div>,
     }),
-    columnHelper.accessor("comment", {
+
+    columnHelper.accessor("text", {
       header: "Comment",
       cell: (info) => (
         <div className="max-w-xs">
@@ -89,20 +106,45 @@ export function ReviewsTable({ timeFilter }: ReviewsTableProps) {
         </div>
       ),
     }),
+
     columnHelper.accessor("rating", {
       header: "Rating",
       cell: (info) => <StarRating rating={info.getValue() || 0} />,
     }),
-    columnHelper.accessor("createdAt", {
+
+    columnHelper.accessor("time", {
       header: "Date",
-      cell: (info) => (
-        <div>{new Date(info.getValue()).toLocaleDateString("en-GB")}</div>
-      ),
+      cell: (info) => {
+        const timestamp = info.getValue();
+        const ts =
+          typeof timestamp === "number" ? timestamp : Number(timestamp) || 0;
+        const date = new Date(ts * 1000); // convert seconds → ms
+        return <div>{date.toLocaleDateString("en-GB")}</div>;
+      },
     }),
   ];
 
+  // Normalize reviews into an array of Review before passing to react-table.
+  // `reviews` may be an array or an object response (e.g. { reviews: Review[] } or { data: Review[] }).
+  const tableData: Review[] = Array.isArray(reviews)
+    ? reviews
+    : (() => {
+        if (!reviews) return [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ("reviews" in reviews && Array.isArray((reviews as any).reviews)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return (reviews as any).reviews as Review[];
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ("data" in reviews && Array.isArray((reviews as any).data)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return (reviews as any).data as Review[];
+        }
+        return [];
+      })();
+
   const table = useReactTable({
-    data: reviews,
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),

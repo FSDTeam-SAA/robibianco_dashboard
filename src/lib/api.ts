@@ -102,6 +102,7 @@ import type {
   PaginationParams,
   RewardUpdatePayload,
 } from "@/types/types";
+import { da } from "zod/v4/locales";
 
 export async function fetchReviews(
   params: PaginationParams & { timeFilter?: string } = {
@@ -123,15 +124,15 @@ export async function fetchReviews(
 
   console.log("🔗 Making API call to:", `/admin/reviews?${searchParams.toString()}`);
 
-  const response = await apiBase.get(`/admin/reviews?${searchParams}`, {
+  const response = await apiBase.get(`/admin/all/google/review?${searchParams}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
   });
-  
+  // console.log('hjkl;',response)
   const data = await response.data;
-
+  console.log('datassss',data.data)
   if (!data.success) {
     throw new Error(data.message || "Failed to fetch reviews");
   }
