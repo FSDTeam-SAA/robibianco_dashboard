@@ -58,8 +58,8 @@ export function ReviewsTable() {
         const row = info.row.original;
         // const ago = info.row.original;
         return (
-          <div className="flex flex-col items-start">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center justify-center">
+            <div className="flex items-center justify-center h-full gap-3">
               <Image
                 src={row?.profile_photo_url || ""}
                 alt={info.getValue()}
@@ -82,8 +82,8 @@ export function ReviewsTable() {
     columnHelper.accessor("text", {
       header: "Comment",
       cell: (info) => (
-        <div className="max-w-xs">
-          <p className="text-sm text-muted-foreground  py-2 line-clamp-2 ">
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground text-center  py-2 text-wrap">
             {info.getValue() || "No comment"}
           </p>
         </div>
@@ -240,48 +240,63 @@ export function ReviewsTable() {
       {/* Table */}
       <div className="bg-card rounded-lg border">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((hg) => (
-              <TableRow key={hg.id}>
-                {hg.headers.map((header) => (
-                  <TableHead key={header.id} className="text-center">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length > 0 ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="border text-center">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  No reviews found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+  <TableHeader>
+    {table.getHeaderGroups().map((hg) => (
+      <TableRow
+        key={hg.id}
+        className="grid grid-cols-5" // 5 columns (User, Comment, Rating, Date = total columns)
+      >
+        {hg.headers.map((header) => (
+          <TableHead
+            key={header.id}
+            className={`text-center ${
+              header.column.id === "text" ? "col-span-2" : "col-span-1"
+            }`}
+          >
+            {header.isPlaceholder
+              ? null
+              : flexRender(
+                  header.column.columnDef.header,
+                  header.getContext()
+                )}
+          </TableHead>
+        ))}
+      </TableRow>
+    ))}
+  </TableHeader>
+
+  <TableBody>
+    {table.getRowModel().rows.length > 0 ? (
+      table.getRowModel().rows.map((row) => (
+        <TableRow
+          key={row.id}
+          className="grid grid-cols-5" // must match header grid
+        >
+          {row.getVisibleCells().map((cell) => (
+            <TableCell
+              key={cell.id}
+              className={`border h-auto text-center ${
+                cell.column.id === "text" ? "col-span-2" : "col-span-1"
+              }`}
+            >
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+      ))
+    ) : (
+      <TableRow className="grid grid-cols-5">
+        <TableCell
+          colSpan={columns.length}
+          className="col-span-5 h-24 text-center text-muted-foreground"
+        >
+          No reviews found.
+        </TableCell>
+      </TableRow>
+    )}
+  </TableBody>
+</Table>
+
       </div>
 
       {/* Pagination */}
