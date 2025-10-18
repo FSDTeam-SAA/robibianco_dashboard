@@ -60,7 +60,7 @@ export function RewardsContent() {
           couponCode: data.couponCode,
           stockLimit: data.stockLimit,
           expiryDays: data.expiry,
-          requireReview: data.requireReview,
+          // requireReview: data.requireReview,
         });
         toast.success("Reward created successfully");
         setIsFormOpen(false);
@@ -152,7 +152,7 @@ export function RewardsContent() {
                         ? Number(editingReward.expiry)
                         : editingReward.expiry,
                     description: editingReward.description,
-                    requireReview: editingReward.requireReview,
+                    // requireReview: editingReward.requireReview,
                   }
                 : undefined
             }
