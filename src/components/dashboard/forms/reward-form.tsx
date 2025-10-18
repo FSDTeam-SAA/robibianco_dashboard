@@ -5,7 +5,7 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -24,7 +24,7 @@ const rewardSchema = z.object({
   couponCode: z.string().min(1, "Coupon code is required"),
   expiry: z.coerce.number().min(1, "Expiry is required"),
   description: z.string().min(1, "Description is required"),
-  requireReview: z.boolean().default(false),
+  // requireReview: z.boolean().default(false),
 });
 
 // ✅ Type inferred from schema
@@ -51,7 +51,7 @@ export function RewardForm({
       couponCode: initialData?.couponCode ?? "",
       expiry: initialData?.expiry ?? 0,
       description: initialData?.description ?? "",
-      requireReview: initialData?.requireReview ?? false,
+      // requireReview: initialData?.requireReview ?? false,
     },
   });
 
@@ -184,7 +184,7 @@ export function RewardForm({
             />
 
             {/* Require Review */}
-            <FormField
+            {/* <FormField
               control={form.control}
               name="requireReview"
               render={({ field }) => (
@@ -206,7 +206,7 @@ export function RewardForm({
                   </div>
                 </FormItem>
               )}
-            />
+            /> */}
 
             {/* Actions */}
             <div className="flex gap-4 pt-4">
