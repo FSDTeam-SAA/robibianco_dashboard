@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useChangePassword, useUserById } from "@/lib/hooks/useAllUsers";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function SettingsContent() {
   const [formData, setFormData] = useState({
@@ -56,13 +57,13 @@ export function SettingsContent() {
       {
         onSuccess: () => {
           // alert("Password changed successfully!");
-          toast.success("Password changed successfully!")
+          toast.success("Password changed successfully!");
           setFormData({
             currentPassword: "",
             newPassword: "",
             confirmPassword: "",
           });
-          setPasswordError(""); 
+          setPasswordError("");
         },
         onError: (err) => {
           setPasswordError(err?.message || "Failed to change password");
@@ -93,12 +94,13 @@ export function SettingsContent() {
       <Card>
         <CardContent className="flex items-center space-x-4 py-6">
           <div className="h-20 w-20 rounded-full overflow-hidden border relative">
-            <Image
-              src={"/no-image.jpg"}
-              alt={"Profile"}
-              fill
-              className="object-cover"
-            />
+            <Avatar className="h-8 w-8">
+              {/* You can replace with user.avatar if you have it */}
+              <AvatarImage src="/user-avatar.jpg" />
+              <AvatarFallback>
+                {user?.fullName?.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
           </div>
           <div>
             <h2 className="font-medium text-lg">
