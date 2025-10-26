@@ -93,15 +93,13 @@ export function SettingsContent() {
       {/* Profile Card */}
       <Card>
         <CardContent className="flex items-center space-x-4 py-6">
-          <div className="h-20 w-20 rounded-full overflow-hidden border relative">
-            <Avatar className="h-8 w-8">
-              {/* You can replace with user.avatar if you have it */}
-              <AvatarImage src="/user-avatar.jpg" />
-              <AvatarFallback>
-                {user?.fullName?.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
+          <Avatar className="h-20 w-20 rounded-full overflow-hidden border relative">
+            {/* You can replace with user.avatar if you have it */}
+            <AvatarImage src="/user-avatar.jpg" />
+            <AvatarFallback>
+              {user?.fullName?.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           <div>
             <h2 className="font-medium text-lg">
               {user?.fullName || "Loading..."}
