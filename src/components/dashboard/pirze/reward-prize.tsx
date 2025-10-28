@@ -23,7 +23,7 @@ export default function SpinResultPage() {
   const [claiming, setClaiming] = useState(false);
   const { id } = useParams() as { id: string };
   const { data: session } = useSession();
-
+  console.log('spain data 1',spin?.spinResult?.rewardName)
   const spinId = id;
   //   const accessToken = session?.user?.accessToken
   // console.log(session);
@@ -115,6 +115,8 @@ export default function SpinResultPage() {
       </div>
     );
   }
+
+  console.log("Spin data:", spin);
 
   //   const { spin, qrCode } = spin
   console.log(spin);
@@ -212,15 +214,14 @@ export default function SpinResultPage() {
               <div className="mt-0.5 h-5 w-5 rounded-full bg-muted" />
               <div className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground">
-                  Reward Value
+                  Reward Prize
                 </p>
                 <p className="text-sm font-semibold">
-                  {spin?.spinResult.value > 0
-                    ? `$${spin?.spinResult.value}`
-                    : "Free"}
+                  {spin?.spinResult?.rewardName}
                 </p>
               </div>
             </div>
+           
           </div>
 
           <Button
