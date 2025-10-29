@@ -23,7 +23,7 @@ export default function SpinResultPage() {
   const [claiming, setClaiming] = useState(false);
   const { id } = useParams() as { id: string };
   const { data: session } = useSession();
-  console.log('spain data 1',spin?.spinResult?.rewardName)
+  console.log("spain data 1", spin?.spinResult?.rewardName);
   const spinId = id;
   //   const accessToken = session?.user?.accessToken
   // console.log(session);
@@ -169,16 +169,38 @@ export default function SpinResultPage() {
             </div>
           )} */}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex items-start gap-3 rounded-lg border bg-card p-4">
-              <Hash className="mt-0.5 h-5 w-5 text-muted-foreground" />
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Unique Code
-                </p>
-                <p className="font-mono text-sm font-semibold">
-                  {spin?.uniqueCode}
-                </p>
+          <div className="flex flex-col gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex items-start gap-3 rounded-lg border bg-card p-4">
+                <Hash className="mt-0.5 h-5 w-5 text-muted-foreground" />
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Unique Code
+                  </p>
+                  <p className="font-mono text-sm font-semibold">
+                    {spin?.uniqueCode}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-lg border bg-card p-4">
+                <div className="mt-0.5 h-5 w-5 rounded-full bg-muted" />
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Status
+                  </p>
+                  <p
+                    className={`text-sm font-semibold ${
+                      spin?.status === "pending"
+                        ? "text-yellow-600"
+                        : spin?.status === "claimed"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {spin?.status.toUpperCase()}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -190,38 +212,22 @@ export default function SpinResultPage() {
               </div>
             </div> */}
 
-            <div className="flex items-start gap-3 rounded-lg border bg-card p-4">
+            <div className="flex  items-start gap-3 rounded-lg border bg-card p-4">
               <div className="mt-0.5 h-5 w-5 rounded-full bg-muted" />
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Status
-                </p>
-                <p
-                  className={`text-sm font-semibold ${
-                    spin?.status === "pending"
-                      ? "text-yellow-600"
-                      : spin?.status === "claimed"
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
-                >
-                  {spin?.status.toUpperCase()}
+              <div className="space-y-1 flex flex-col w-full gap-2">
+                <div className="flex  items-center justify-between">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Reward Prize
+                  </p>
+                  <p className="text-sm font-semibold">
+                    {spin?.spinResult?.rewardName}
+                  </p>
+                </div>
+                <p className="text-sm  font-medium text-muted-foreground">
+                  {spin?.spinResult?.description}
                 </p>
               </div>
             </div>
-
-            <div className="flex items-start gap-3 rounded-lg border bg-card p-4">
-              <div className="mt-0.5 h-5 w-5 rounded-full bg-muted" />
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Reward Prize
-                </p>
-                <p className="text-sm font-semibold">
-                  {spin?.spinResult?.rewardName}
-                </p>
-              </div>
-            </div>
-           
           </div>
 
           <Button
